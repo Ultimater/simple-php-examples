@@ -15,7 +15,8 @@
  */
 
 if (version_compare(PHP_VERSION, '5.5.0', '<')) {
-    require("../1-minimal/libraries/password_compatibility_library.php");
+    // wget https://raw.github.com/ircmaxell/password_compat/master/lib/password.php
+    require("password.php");
 }
 
 session_start();
