@@ -24,7 +24,7 @@ session_start();
 //error_log('POST='.var_export($_POST, true));
 //error_log('SESSION='.var_export($_SESSION, true));
 
-echo page(init(cfg(array(
+echo view(init(cfg(array(
     'title'     => 'Simple PHP Login',
     'admin'     => 'admin',
     'email'     => 'admin@localhost.lan',
@@ -37,7 +37,25 @@ echo page(init(cfg(array(
         'path'  => 'users.db',
         'port'  => '3306',
         'type'  => 'sqlite',
-        'user'  => 'root')))));
+        'user'  => 'root'),
+    'views'     => array(
+        'home',
+        'about',
+        'login',
+        'logout',
+        'register',
+        'profile',
+        'install'
+    )))));
+
+function init($cfg)
+{
+    if (!empty($_POST)) cfg('db', db_init($cfg['dbconf']));
+    $a = $_SESSION['a'] = isset($_REQUEST['a'])
+        ? strtolower(str_replace(' ', '_', trim($_REQUEST['a'])))
+        : 'home';
+    return in_array($a, $cfg['views'])? $a(): '<b>View does not exist</b>';
+}
 
 // public callable functions
 
@@ -162,18 +180,7 @@ function cfg($k = NULL, $v = NULL)
     return isset($stash[$k]) ? $stash[$k] : NULL;
 }
 
-function init($cfg)
-{
-    if (!empty($_POST)) cfg('db', db_init($cfg['dbconf']));
-    $action = isset($_REQUEST['a'])
-        ? strtolower(str_replace(' ', '_', trim($_REQUEST['a'])))
-        : 'home';
-    return in_array($action, array('home', 'login', 'logout', 'register', 'install'))
-        ? $action()
-        : '<b>Error: action does not exist</b>';
-}
-
-function page($content)
+function view($content)
 {
     $msg = isset($_SESSION['msg']) ? '
     <p class="msg">'.$_SESSION['msg'].'</p>' : '';
