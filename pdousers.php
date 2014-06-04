@@ -3,12 +3,6 @@
 
 const ROOT = __DIR__;
 
-if (version_compare(PHP_VERSION, '5.5.0', '<')) {
-  // If your version of PHP is less than 5.5 then you need a password compat lib
-  // wget https://raw.github.com/ircmaxell/password_compat/master/lib/password.php
-  require("password.php");
-}
-
 session_start();
 error_log('GET='.var_export($_GET, true));
 error_log('POST='.var_export($_POST, true));

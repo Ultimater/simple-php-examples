@@ -3,7 +3,13 @@
 
 const ROOT = __DIR__;
 
-  echo page(init(cfg(array(
+session_start();
+error_log('GET='.var_export($_GET, true));
+error_log('POST='.var_export($_POST, true));
+error_log('SESSION='.var_export($_SESSION, true));
+//$_SESSION = []; // uncomment to reset the session vars for testing
+
+echo page(init(cfg(array(
     'title'    => 'My Project',
     'email'    => 'noreply@tit.lan',
     'issue'    => array(),
