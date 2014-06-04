@@ -62,9 +62,7 @@ echo page(init(cfg(array(
 
   function init($cfg)
   {
-    session_start();
-    //error_log('REQUEST='.var_export($_REQUEST, true));
-    //error_log('SESSION='.var_export($_SESSION, true));
+error_log(__METHOD__);
 
     if (isset($_GET['logout'])) {
       logout();
@@ -102,6 +100,8 @@ echo page(init(cfg(array(
 
   function install($type)
   {
+error_log(__METHOD__);
+
     $db = cfg('db');
     $pri = $type == 'mysql' ? 'int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT' : 'INTEGER PRIMARY KEY';
 
@@ -135,6 +135,8 @@ echo page(init(cfg(array(
   // static
   function db_init($dbconf)
   {
+error_log(__METHOD__);
+
     extract($dbconf);
     $dsn = $type === 'mysql'
       ? 'mysql:'.($sock ? 'unix_socket='.$sock : 'host='.$host.';port='.$port).';dbname='.$name
@@ -149,6 +151,8 @@ echo page(init(cfg(array(
 
   function changestatus()
   {
+error_log(__METHOD__);
+
     $db = cfg('db');
     $title = cfg('title');
     $notify = cfg('notify');
@@ -166,6 +170,8 @@ echo page(init(cfg(array(
 
   function changepriority()
   {
+error_log(__METHOD__);
+
     $db = cfg('db');
     $title = cfg('title');
     $notify = cfg('notify');
@@ -183,6 +189,8 @@ echo page(init(cfg(array(
 
   function unwatch()
   {
+error_log(__METHOD__);
+
     $id = (int)$_POST['id'];
     setWatch($id, false);
     header('Location: '.$_SERVER['PHP_SELF'].'?id='.$id);
@@ -197,6 +205,8 @@ echo page(init(cfg(array(
 
   function deletecomment()
   {
+error_log(__METHOD__);
+
     $db = cfg('db');
     $id = (int)$_GET['id'];
     $cid = (int)$_GET['cid'];
@@ -209,6 +219,8 @@ echo page(init(cfg(array(
 
   function createcomment()
   {
+error_log(__METHOD__);
+
     $db = cfg('db');
     $title = cfg('title');
     $notify = cfg('notify');
@@ -231,6 +243,8 @@ echo page(init(cfg(array(
 
   function deleteissue()
   {
+error_log(__METHOD__);
+
     $db = cfg('db');
     $title = cfg('title');
     $notify = cfg('notify');
@@ -253,6 +267,8 @@ echo page(init(cfg(array(
 
   function createissue()
   {
+error_log(__METHOD__);
+
     $db = cfg('db');
     $title = cfg('title');
     $users = cfg('users');
@@ -294,6 +310,8 @@ echo page(init(cfg(array(
 
   function get_issue()
   {
+error_log(__METHOD__);
+
     $db = cfg('db');
     $issue = array();
     $comments = array();
@@ -334,6 +352,8 @@ echo page(init(cfg(array(
 
   function login()
   {
+error_log(__METHOD__);
+
     if (check_credentials($_POST['u'], md5($_POST['p']))) {
       $users = cfg('users');
       $_SESSION['tit'] = $users[$_POST['u']];
@@ -343,6 +363,8 @@ echo page(init(cfg(array(
 
   function login_form()
   {
+error_log(__METHOD__);
+
     return '
 <html>
   <head>
@@ -367,6 +389,8 @@ label { display: block; }
 
   function logout()
   {
+error_log(__METHOD__);
+
     $_SESSION['tit'] = array();
     header('Location: '.$_SERVER['PHP_SELF']);
   }
@@ -375,6 +399,8 @@ label { display: block; }
 
   function pdo_escape_string($str)
   {
+error_log(__METHOD__);
+
     $db = cfg('db');
     $quoted = $db->quote($str);
     return ($db->quote("") == "''") ? substr($quoted, 1, strlen($quoted) - 2) : $quoted;
@@ -382,12 +408,16 @@ label { display: block; }
 
   function check_credentials($u, $p)
   {
+error_log(__METHOD__);
+
     $users = cfg('users');
     return $users[$u]['password'] == $p ? true : false;
   }
 
   function get_col($id, $table, $col)
   {
+error_log(__METHOD__);
+
     $db = cfg('db');
     $result = $db->query("
  SELECT $col FROM $table
@@ -397,6 +427,8 @@ label { display: block; }
 
   function notify($id, $subject, $body)
   {
+error_log(__METHOD__);
+
     $db = cfg('db');
     $result = $db->query("
  SELECT notify_emails
@@ -411,11 +443,15 @@ label { display: block; }
 
   function watchFilterCallback($email)
   {
+error_log(__METHOD__);
+
     return $email != $_SESSION['tit']['email'];
   }
 
   function setWatch($id, $addToWatch)
   {
+error_log(__METHOD__);
+
     $db = cfg('db');
     if ($_SESSION['tit']['email'] == '') return;
     $result = $db->query("
@@ -440,6 +476,8 @@ label { display: block; }
   // static
   function cfg($k = NULL, $v = NULL)
   {
+error_log(__METHOD__);
+
     static $stash = array();
     if (empty($k)) return $stash;
     if (is_array($k)) return $stash = array_merge($stash, $k);
@@ -450,6 +488,8 @@ label { display: block; }
   // static
   function dropdown($ary, $name, $sel = '', $extra = '')
   {
+error_log(__METHOD__);
+
     $buf = '';
     foreach($ary as $k=>$v) $buf .= '
               <option value="'.$k.'"'.($sel == "$k" ? ' selected' : '').'>'.$v.'</option>';
@@ -460,6 +500,8 @@ label { display: block; }
 
   function menu()
   {
+error_log(__METHOD__);
+
     $issue = cfg('issue');
     $statuses = cfg('statuses');
     $status = isset($_GET['status']) ? $_GET['status'] : (isset($issue['status']) ? $issue['status'] : 0);
@@ -478,6 +520,8 @@ label { display: block; }
 
   function ttitle()
   {
+error_log(__METHOD__);
+
     $issue = cfg('issue');
     $onclick = "document.getElementById('create').className='';document.getElementById('title').focus();";
     $create_edit = (!isset($issue['id']) or $issue['id'] == '') ? 'Create' : 'Edit';
@@ -488,6 +532,8 @@ label { display: block; }
 
   function editor()
   {
+error_log(__METHOD__);
+
     $issue = cfg('issue');
     $editissue = isset($_GET['editissue']) ? '' : 'hide';
     $issue_id = isset($issue['id']) ? $issue['id'] : '';
@@ -514,6 +560,8 @@ label { display: block; }
 
   function mode_list()
   {
+error_log(__METHOD__);
+
     $issues = cfg('issues');
     $statuses = cfg('statuses');
     $hdr = isset($_GET['status']) ? $statuses[$_GET['status']].' ' : '';
@@ -537,6 +585,8 @@ label { display: block; }
   // static
   function mode_list_issues($issues)
   {
+error_log(__METHOD__);
+
     $buf = '';
     $count = 1;
     foreach ($issues as $issue) {
@@ -562,6 +612,8 @@ label { display: block; }
 
   function mode_issue()
   {
+error_log(__METHOD__);
+
     $issue = cfg('issue');
     $statuses = cfg('statuses');
     $comments = cfg('comments');
@@ -608,6 +660,8 @@ label { display: block; }
   // static
   function mode_issue_comments($issue, $comments)
   {
+error_log(__METHOD__);
+
     $buf = '';
     if (count($comments) > 0) $buf .= '
       <h3>Comments</h3>';
@@ -628,6 +682,8 @@ label { display: block; }
 
   function list_mode()
   {
+error_log(__METHOD__);
+
     $mode = cfg('mode');
     if ($mode == 'list') return mode_list();
     elseif ($mode == 'issue') return mode_issue();
@@ -636,6 +692,8 @@ label { display: block; }
 
   function page()
   {
+error_log(__METHOD__);
+
     return '<!DOCTYPE html>
 <html lang="en">
   <head>
