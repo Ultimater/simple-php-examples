@@ -2,16 +2,11 @@
 // pdoticket.php 20140604 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
 
 const ROOT = __DIR__;
-
-session_start();
-error_log('GET='.var_export($_GET, true));
-error_log('POST='.var_export($_POST, true));
-error_log('SESSION='.var_export($_SESSION, true));
-//$_SESSION = []; // uncomment to reset the session vars for testing
+require 'pdocommon.php';
 
 echo page(init(cfg(array(
-  'title'    => 'My Project',
-  'email'    => 'noreply@tit.lan',
+  'title'    => 'PDO Ticket',
+  'email'    => 'noreply@localhost.lan',
   'issue'    => array(),
   'issues'   => array(),
   'comments' => array(),
@@ -32,13 +27,13 @@ echo page(init(cfg(array(
     'admin' => array(
       'username' => 'admin',
       'password' => md5('changeme'),
-      'email'    => 'admin@tit.lan',
+      'email'    => 'admin@localhost.lan',
       'admin'    => true
     ),
     'markc' => array(
       'username' => 'user1',
       'password' => md5('changeme'),
-      'email'    => 'user1@tit.lan'
+      'email'    => 'user1@localhost.lan'
     )
   ),
   'notify' => array(
@@ -128,7 +123,7 @@ CREATE TABLE IF NOT EXISTS issues (
       notify_emails TEXT,
       entrytime DATETIME);
 INSERT INTO issues VALUES
-      (NULL, 'New Issue 1', 'Just a test 1', 'admin', 0, 1, 'admin@tit.lan', '2013-05-22 00:00:00'),
+      (NULL, 'New Issue 1', 'Just a test 1', 'admin', 0, 1, 'admin@localhost.lan', '2013-05-22 00:00:00'),
       (NULL, 'New Issue 2', 'Just a test 2', 'admin', 1, 1, '', '2013-05-22 16:51:37');");
 }
 

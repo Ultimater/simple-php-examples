@@ -2,12 +2,7 @@
 // pdopager.php 20140604 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
 
 const ROOT = __DIR__;
-
-session_start();
-error_log('GET='.var_export($_GET, true));
-error_log('POST='.var_export($_POST, true));
-error_log('SESSION='.var_export($_SESSION, true));
-//$_SESSION = []; // uncomment to reset the session vars for testing
+require 'pdocommon.php';
 
 $config = [
   'db' => [
