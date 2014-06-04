@@ -1,8 +1,5 @@
-<?php error_log("\n\n!!! START\n");
-// pdopager.php 20140428 (C) Mark Constable (AGPL-3.0)
-//
-// Use mysql2sqlite-sh to convert MySQL direct to SQLite
-// https://gist.github.com/esperlu/943776
+<?php error_log("\n\n!!! START -> ".__FILE__."\n");
+// pdopager.php 20140604 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
 
 const ROOT = __DIR__;
 
@@ -14,12 +11,13 @@ session_start();
 $config = [
   'db' => [
     'host' => 'localhost',
-    'name' => 'pdopager',
-    'pass' => '1qaz@WSX',
-    'path' => ROOT.'/.htdb.sqlite',
+    'name' => 'admin',
+    'pass' => ROOT.'/.ht_pw.php',
+    'path' => ROOT.'/.ht_pager.db',
     'port' => '3306',
+    'sock' => '/run/mysqld/mysqld.sock',
     'type' => 'mysql',
-    'user' => 'root',
+    'user' => 'admin',
   ],
   'in' => [
     'm' => 'page',      // (M)odule (class)
@@ -39,7 +37,7 @@ $config = [
   ],
 ];
 
-echo page(new pager($config));
+echo view(new pager($config));
 
 class pager {
 
@@ -420,8 +418,9 @@ error_log(__METHOD__);
 
   extract($dbconf);
   $dsn = $type === 'mysql'
-    ? 'mysql:host='.$host.';port='.$port.';dbname='.$name
+    ? 'mysql:'.($sock ? 'unix_socket='.$sock : 'host='.$host.';port='.$port).';dbname='.$name
     : 'sqlite:'.$path;
+    $pass = file_exists($pass) ? include $pass : $pass;
   try {
     return new PDO($dsn, $user, $pass, [
       PDO::ATTR_EMULATE_PREPARES => false,
@@ -451,7 +450,7 @@ error_log(__METHOD__);
         </div>';
 }
 
-function page($buf)
+function view($buf)
 {
 error_log(__METHOD__);
 
