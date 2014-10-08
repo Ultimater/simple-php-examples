@@ -1,4 +1,4 @@
-# [php]
+# Simple PHP Exmaples
 
 A simple set of PHP scripts that use [PDO] for backend database
 connectivity and tested for use with both [MariaDB] and [SQLite]. There
