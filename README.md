@@ -55,3 +55,8 @@ The format of the hidden password file is...
 [Bootstrap]: http://getbootstrap.com
 [jQuery]: http://jquery.com
 [CDN]: http://bootstrapcdn.com
+
+[pdoforum.php]: pdoforum.php
+[pdopager.php]: pdopager.php
+[pdoticket.php]: pdoticket.php
+[pdousers.php]: pdousers.php
