@@ -1,0 +1,87 @@
+/*
+pdo-crud 20130516 (C) Mark Constable (AGPLv3)
+https://github.com/markc/pdo-crud
+*/
+
+html {
+  overflow-y: scroll;
+}
+
+* {
+  line-height: 160%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-size: 100%;
+  margin: 0 auto;
+  width: 50em;
+}
+
+a {
+  color: #3F7FFF;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #BF0000;
+}
+
+table {
+  border-top: 1px solid #EFEFEF;
+  table-layout: fixed;
+  width: 100%;
+}
+
+h1 {
+  color: #7F7F7F;
+  text-align: center;
+  text-shadow: 0 0.05em 0.05em #000000;
+}
+
+tr th:first-child {
+  text-align: left;
+}
+
+tr th:last-child {
+  font-weight: normal;
+  text-align: right;
+}
+
+label {
+  display: inline-block;
+  font-size: 75%;
+  font-weight: bold;
+  text-align: right;
+  width: 10%;
+}
+
+textarea {
+  font-family: monospace;
+  height: 10em;
+  margin-top: 0.25em;
+  width: 100%;
+}
+
+input[type="text"], textarea {
+  border: 1px solid #EFEFEF;
+}
+
+input[type="text"] {
+  padding: 0 0.5em;
+  width: 50%;
+}
+
+input[type="submit"] {
+  padding: 0.25em 1em;
+}
+
+input[type="submit"]:hover {
+  color: #BF0000;
+}
+
+.buttons {
+  text-align: right;
+}
+
