@@ -177,15 +177,6 @@ body {
 // lib/php/pages.php
 class pages {
 
-  public $buf = '';
-  private $gbl = [];
-
-  public function __construct(&$gbl)
-  {
-error_log(__FILE__);
-    $this->gbl = &$gbl;
-  }
-
   function read()
   {
     $this->top = '
