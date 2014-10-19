@@ -7,19 +7,19 @@ const ROOT = __DIR__;
 const DS = DIRECTORY_SEPARATOR;
 session_start();
 
-echo new init([
+echo new page([
   'in' => [
-    'm'         => 'pages', // (M)odule (class)
-    'a'         => 'read',  // (A)action (method)
+    'o'         => 'pages', // Object
+    'm'         => 'read',  // Method
   ],
   'out' => [
-    'buf'       => '',
+    'body'      => '',
     'css'       => '',
     'dbg'       => '',
     'dtitle'    => 'Bootstrap',
     'end'       => '<br><p class="text-center"><em><small>Copyright (C) 2014 Mark Constable</small></em><p>',
     'js'        => '',
-    'menu'      => '',
+    'lhs'       => '',
     'meta'      => '',
     'msg'       => '',
     'nav'       => '',
@@ -30,34 +30,31 @@ echo new init([
   ],
   'nav' => [
     'non' => [
-      'About' => ['fa fa-info-circle fa-fw', '?m=pages&a=about'],
-      'Contact' => ['fa fa-envelope fa-fw', '?m=pages&a=contact'],
+      'About' => ['fa fa-info-circle fa-fw', '?o=pages&m=about'],
+      'Contact' => ['fa fa-envelope fa-fw', '?o=pages&m=contact'],
     ],
   ],
 ]);
 
-// lib/php/init.php
-class init {
+// lib/php/page.php
+class page {
 
-  public function __construct($cfg)
+  public function __construct($gbl)
   {
-    $this->cfg = &$cfg;
+    $this->gbl = &$gbl;
+    $gbl['in'] = self::esc($gbl['in']);
 
-    foreach($cfg['in'] as $k=>$v)
-      $this->cfg['in'][$k] = isset($_REQUEST[$k])
-        ? htmlentities(trim($_REQUEST[$k]), ENT_QUOTES, 'UTF-8') : $v;
+    if (class_exists($gbl['in']['o'])) {
+      $o = new $gbl['in']['o']($gbl);
+      if (method_exists($o, $gbl['in']['m'])) {
+        $o->{$gbl['in']['m']}();
+        foreach($gbl['out'] as $k=>$v)
+          $gbl['out'][$k] = isset($o->$k) ? $o->$k : $v;
+      } else self::msg('Error: method does not exist');
+    } else self::msg('Error: object does not exist');
 
-    if (class_exists($this->cfg['in']['m'])) {
-      $m = new $this->cfg['in']['m']($this->cfg);
-      if (method_exists($m, $this->cfg['in']['a'])) {
-        $m->{$this->cfg['in']['a']}();
-        foreach($this->cfg['out'] as $k=>$v)
-          $this->cfg['out'][$k] = isset($m->$k) ? $m->$k : $v;
-      } else self::msg('Error: action does not exist');
-    } else self::msg('Error: module does not exist');
-
-    $cfg['out']['nav'] = self::nav($cfg['nav']['non']);
-    $cfg['out']['msg'] = self::msg();
+    $gbl['out']['nav'] = self::nav($gbl['nav']['non']);
+    $gbl['out']['msg'] = self::msg();
   }
 
   public function __destruct()
@@ -68,8 +65,8 @@ class init {
   public function __toString()
   {
     return isset($_SERVER['HTTP_X_REQUESTED_WITH'])
-      ? json_encode($this->cfg['out'])
-      : self::page($this->cfg['out']);
+      ? json_encode($this->gbl['out'])
+      : self::layout($this->gbl['out']);
   }
 
   public static function nav($ary, $type='navbar-nav')
@@ -106,7 +103,16 @@ class init {
     } else return '';
   }
 
-  private static function page($ary)
+  public static function esc($ary)
+  {
+    $safe_ary = [];
+    foreach($ary as $k=>$v)
+      $safe_ary[$k] = isset($_REQUEST[$k])
+        ? htmlentities(trim($_REQUEST[$k]), ENT_QUOTES, 'UTF-8') : $v;
+    return $safe_ary;
+  }
+
+  private static function layout($ary)
   {
     extract($ary);
     return '<!DOCTYPE html>
@@ -155,7 +161,7 @@ body {
         </div>
       </div>
     </header>'.$top.'
-    <main class="container">'.$msg.$ptitle.$buf.'
+    <main class="container">'.$msg.$ptitle.$body.'
     </main>
     <footer>
       '.$end.'
@@ -172,11 +178,12 @@ body {
 class pages {
 
   public $buf = '';
-  private $cfg = [];
+  private $gbl = [];
 
-  public function __construct(&$cfg)
+  public function __construct(&$gbl)
   {
-    $this->cfg = &$cfg;
+error_log(__FILE__);
+    $this->gbl = &$gbl;
   }
 
   function read()
@@ -193,7 +200,7 @@ and fixed to top navbar work. It includes the responsive CSS and HTML,
 so it also adapts to your viewport and device.
             </p>
             <p>
-              <a class="btn btn-lg btn-primary" href="?m=pages&a=about" role="button">About this project &raquo;</a>
+              <a class="btn btn-lg btn-primary" href="?o=pages&m=about" role="button">About this project &raquo;</a>
             </p>
             <br>
           </div>
@@ -201,7 +208,7 @@ so it also adapts to your viewport and device.
       </div>
     </div>';
 
-    $this->buf = '
+    $this->body = '
       <div class="row text-center">
         <div class="col-md-12">
           <p>
@@ -214,25 +221,30 @@ This project is sponsored by<br>
 
   function about()
   {
-    $this->buf = '
+    ++$_SESSION['cnt'];
+    $this->body = '
       <div class="row">
         <div class="col-md-6 col-md-offset-3">
           <h2 class="ptitle">About</h2>
           <p>
 This is a simple set of PHP scripts that use
 <a href="http://php.net/PDO">PDO</a> for backend database connectivity
-and tested for use with both <a href="http://mariadb.org">MariaDB</a>
-and <a href="http://sqlite.org">SQLite</a>. There are minimal PHP
-dependencies aside from PHP version 5.5, for the inbuilt password hashing
-functions, and short array syntax (ie; [] instead of array()) since 5.4.
-Most of the scripts are single file and self-contained aside from
+and tested for use with both <a href="http://mariadb.org">MariaDB</a> and
+<a href="http://sqlite.org">SQLite</a>. The minimum PHP dependency is PHP
+version 5.5 for the inbuilt password hashing functions and short array
+syntax (ie; [] instead of array() since 5.4.)
+           </p>
+           <p>
+Most of the simpler scripts are single file and self-contained aside from
 <a href="http://getbootstrap.com">Bootstrap</a> and
 <a href="http://jquery.com">jQuery</a> pulled from a
-<a href="http://bootstrapcdn.com">CDN</a>.
+<a href="http://bootstrapcdn.com">CDN</a>. Tested on Ubuntu 14.10 (Oct 2014)
+with nginx 1.7.6, php5-fpm 5.6.2, mariadb 5.5.39 and sqlite3 3.8.6.
           </p>
           <p>
-<a class="btn btn-primary" href="?m=pages&a=success">Successful Message Test</a>
-<a class="btn btn-danger" href="?m=pages&a=error">Error Message Test</a>
+<a class="btn btn-success" href="?o=pages&m=success">Successful Message Test</a>
+<a class="btn btn-danger" href="?o=pages&m=error">Error Message Test</a>
+<a class="btn btn-warning" href="?o=pages&m=reset">Reset Counter: '.$_SESSION['cnt'].'</a>
           </p>
         </div>
       </div>';
@@ -240,7 +252,7 @@ Most of the scripts are single file and self-contained aside from
 
   function contact()
   {
-    $this->buf = '
+    $this->body = '
       <div class="row">
         <div class="col-md-6 col-md-offset-3">
           <h2 class="ptitle">Contact</h2>
@@ -280,13 +292,19 @@ function mailform(form) {
 
   function success()
   {
-    init::msg('This is a <b>Successful</b> message', 'success');
+    page::msg('This is a <b>Successful</b> message', 'success');
     $this->about();
   }
 
   function error()
   {
-    init::msg('This is an <b>Error</b> message');
+    page::msg('This is an <b>Error</b> message');
+    $this->about();
+  }
+
+  function reset()
+  {
+    $_SESSION['cnt'] = 0;
     $this->about();
   }
 }
