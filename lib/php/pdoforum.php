@@ -2,18 +2,22 @@
 // pdoforum.php 20140604 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
 
 const ROOT = __DIR__;
-require 'pdocommon.php';
+//require 'pdocommon.php';
+session_start();
+error_log('GET='.var_export($_GET, true));
+error_log('POST='.var_export($_POST, true));
+error_log('SESSION='.var_export($_SESSION, true));
 
 $config = [
   'db' => [
     'host' => 'localhost',
-    'name' => 'admin',
-    'pass' => ROOT.'/.ht_pw.php',
+    'name' => 'pdoforum',
+    'pass' => 'changeme', //ROOT.'/.ht_pw.php',
     'path' => ROOT.'/.ht_forum.db',
     'port' => '3306',
     'sock' => '/run/mysqld/mysqld.sock',
     'type' => 'mysql',
-    'user' => 'admin',
+    'user' => 'root',
   ],
   'in' => [
     'm' => 'forum',      // (M)odule (class)
@@ -161,7 +165,8 @@ error_log(__METHOD__);
         if ($u) {
           if ($p) {
             if ($user = $this->read_user($u)) {
-              if (password_verify($p, $user['passwd'])) {
+//              if (password_verify($p, $user['passwd'])) {
+              if ($p == $user['passwd']) {
                 $_SESSION['user'] = $user;
                 msg($user['uid'].' is now signed in');
                 header('Location: ?a=index');
@@ -481,13 +486,13 @@ error_log(__METHOD__);
 } // end forum class
 
 
-// anon, pending, user, admin
+// anon and pending = 0, admin = 1, user = 2
 function acl($acl=1)
 {
 error_log(__METHOD__."($acl)");
 
-  $tmp = (isset($_SESSION['user']['acl']) && $_SESSION['user']['acl'] === $acl);
-//error_log('acl tmp = '.var_export($tmp, true));
+  $tmp = (isset($_SESSION['user']['acl']) && $_SESSION['user']['acl'] === (int)$acl);
+error_log('acl tmp = '.var_export($tmp, true));
   return $tmp;
 //  return isset($_SESSION['user']['acl']) and $_SESSION['user']['acl'] == $acl;
 }

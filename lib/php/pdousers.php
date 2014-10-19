@@ -301,7 +301,8 @@ error_log(__METHOD__);
     $u = read_user($_POST['u']['uid']);
     if (isset($u['uid'])) {
       if ($u['acl']) {
-        if (password_verify($_POST['u']['passwd'], $u['passwd'])) {
+//        if (password_verify($_POST['u']['passwd'], $u['passwd'])) {
+        if ($_POST['u']['passwd'] == $u['passwd']) {
           $_SESSION['u'] = $u;
           $_SESSION['m'] = $u['uid'].' is now logged in';
           if ($u['acl'] == 127) $_SESSION['adm'] = true;
