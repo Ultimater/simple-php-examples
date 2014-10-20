@@ -1,6 +1,6 @@
 <?php
-// 00-Bootstrap.php 20140818 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
-// https://github.com/markc/simple-php-examples/lib/md/00-Bootstrap.md
+// 00-Bootstrap.php 20140818 (C) 2014 Mark Constable <markc@renta.net> (AGPL-3.0)
+// https://github.com/markc/simple-php-examples/blob/master/lib/md/00-Bootstrap.md
 
 // index.php
 const ROOT = __DIR__;
@@ -11,22 +11,30 @@ echo new page([
   'in' => [
     'o'         => 'pages', // Object
     'm'         => 'read',  // Method
+    'i'         => 0,       // Id
+    'g'         => 0,       // Group
   ],
   'out' => [
     'body'      => '',
     'css'       => '',
     'dbg'       => '',
     'dtitle'    => 'Bootstrap',
-    'end'       => '<br><p class="text-center"><em><small>Copyright (C) 2014 Mark Constable</small></em><p>',
+    'foot'      => '<p>Copyright (C) 2014 Mark Constable (AGPL-3.0)</p>',
+    'head'      => '',
     'js'        => '',
     'lhs'       => '',
     'meta'      => '',
     'msg'       => '',
     'nav'       => '',
+    'navcolor'  => 'inverse',
+    'navtype'   => 'static',
     'ntitle'    => 'Bootstrap',
     'ptitle'    => '',
     'self'      => $_SERVER['PHP_SELF'],
-    'top'       => '',
+  ],
+  'ses' => [
+    'navcolor'  => 'inverse',
+    'navtype'   => 'static',
   ],
   'nav' => [
     'non' => [
@@ -43,6 +51,7 @@ class page {
   {
     $this->gbl = &$gbl;
     $gbl['in'] = self::esc($gbl['in']);
+    self::ses($gbl['ses'], $gbl['out']);
 
     if (class_exists($gbl['in']['o'])) {
       $o = new $gbl['in']['o']($gbl);
@@ -112,9 +121,24 @@ class page {
     return $safe_ary;
   }
 
+  public static function ses($in_ary, &$out_ary)
+  {
+    foreach($in_ary as $k=>$v)
+      if (isset($_SESSION[$k]))
+        $out_ary[$k] = $_SESSION[$k];
+      else
+        $_SESSION[$k] = $v;
+  }
+
   private static function layout($ary)
   {
     extract($ary);
+
+    if ($navtype == 'fixed') $css .= '
+    <style>
+body { padding-top: 71px; }
+    </style>';
+
     return '<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -124,7 +148,7 @@ class page {
     <title>'.$dtitle.'</title>
     <link href="lib/img/favicon.ico" rel="icon">
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">'.$css.'
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -143,10 +167,18 @@ body {
 .ptitle {
   margin-top: 0px;
 }
-    </style>
+footer {
+  font-size: 80%;
+  color: #7F7F7F;
+  font-family: serif;
+  font-style: italic;
+  margin-top: 1em;
+  text-align: center;
+}
+    </style>'.$css.'
   </head>
   <body>
-    <header class="navbar navbar-inverse navbar-static-top" role="navigation">
+    <header class="navbar navbar-'.$navcolor.' navbar-'.$navtype.'-top" role="navigation">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
@@ -160,11 +192,11 @@ body {
         <div class="navbar-collapse collapse">'.$nav.'
         </div>
       </div>
-    </header>'.$top.'
+    </header>'.$head.'
     <main class="container">'.$msg.$ptitle.$body.'
     </main>
     <footer>
-      '.$end.'
+      '.$foot.'
     </footer>'.$dbg.'
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>'.$js.'
@@ -177,9 +209,14 @@ body {
 // lib/php/pages.php
 class pages {
 
-  function read()
+  public function __construct(&$gbl)
   {
-    $this->top = '
+    $this->gbl = &$gbl;
+  }
+
+  public function read()
+  {
+    $this->head = '
     <div class="jumbotron">
       <div class="container">
         <div class="row">
@@ -210,9 +247,10 @@ This project is sponsored by<br>
       </div>';
   }
 
-  function about()
+  public function about()
   {
     ++$_SESSION['cnt'];
+
     $this->body = '
       <div class="row">
         <div class="col-md-6 col-md-offset-3">
@@ -237,11 +275,17 @@ with nginx 1.7.6, php5-fpm 5.6.2, mariadb 5.5.39 and sqlite3 3.8.6.
 <a class="btn btn-danger" href="?o=pages&m=error">Error Message Test</a>
 <a class="btn btn-warning" href="?o=pages&m=reset">Reset Counter: '.$_SESSION['cnt'].'</a>
           </p>
+          <p>
+<a class="btn btn-primary" href="?o=pages&m=navbar&i=1">Static Navbar</a>
+<a class="btn btn-primary" href="?o=pages&m=navbar&i=2">Fixed Navbar</a>
+<a class="btn btn-primary" href="?o=pages&m=navbar&i=3">Default Navbar</a>
+<a class="btn btn-primary" href="?o=pages&m=navbar&i=4">Inverse Navbar</a>
+          </p>
         </div>
       </div>';
   }
 
-  function contact()
+  public function contact()
   {
     $this->body = '
       <div class="row">
@@ -281,21 +325,32 @@ function mailform(form) {
       </script>';
   }
 
-  function success()
+  public function success()
   {
     page::msg('This is a <b>Successful</b> message', 'success');
     $this->about();
   }
 
-  function error()
+  public function error()
   {
     page::msg('This is an <b>Error</b> message');
     $this->about();
   }
 
-  function reset()
+  public function reset()
   {
     $_SESSION['cnt'] = 0;
+    $this->about();
+  }
+
+  public function navbar()
+  {
+    switch($this->gbl['in']['i']) {
+      case '1': $_SESSION['navtype']  = $this->navtype  = 'static';  break;
+      case '2': $_SESSION['navtype']  = $this->navtype  = 'fixed';   break;
+      case '3': $_SESSION['navcolor'] = $this->navcolor = 'default'; break;
+      case '4': $_SESSION['navcolor'] = $this->navcolor = 'inverse'; break;
+    }
     $this->about();
   }
 }

@@ -22,13 +22,16 @@
 ### public page::__toString()
 
 
-### public static page::nav($ary, $type='navbar-nav')
+### public static page::nav($ary, $type)
 
 
-### public static page::msg($msg='', $lvl='danger')
+### public static page::msg($msg, $lvl)
 
 
 ### public static page::esc($ary)
+
+
+### public static page::ses($in_ary, $out_ary)
 
 
 ### private static page::layout($ary)
@@ -50,6 +53,9 @@
 
 
 ### public pages::reset()
+
+
+### public pages::navbar()
 
 
 ## Javascript
