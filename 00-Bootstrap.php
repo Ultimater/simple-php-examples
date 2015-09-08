@@ -8,34 +8,34 @@ const ROOT = __DIR__;
 const DS = DIRECTORY_SEPARATOR;
 session_start();
 
-echo new page([
+echo new Page([
     'in' => [
-        'o' => 'pages', // Object
-        'm' => 'read',    // Method
-        'i' => 0,             // Id
-        'g' => 0,             // Group
+        'o'         => 'pages',     // Object
+        'm'         => 'read',      // Method
+        'i'         => 0,           // Id
+        'g'         => 0,           // Group
     ],
     'out' => [
-        'body' => '',
-        'css' => '',
-        'dbg' => '',
-        'dtitle' => 'Bootstrap',
-        'foot' => '<p>Copyright (C) 2014 Mark Constable (AGPL-3.0)</p>',
-        'head' => '',
-        'js' => '',
-        'lhs' => '',
-        'meta' => '',
-        'msg' => '',
-        'nav' => '',
-        'navcolor' => 'inverse',
-        'navtype' => 'static',
-        'ntitle' => 'Bootstrap',
-        'ptitle' => '',
-        'self' => $_SERVER['PHP_SELF'],
+        'body'      => '',
+        'css'       => '',
+        'dbg'       => '',
+        'dtitle'    => 'Bootstrap',
+        'foot'      => '<p>Copyright (C) 2014 Mark Constable (AGPL-3.0)</p>',
+        'head'      => '',
+        'js'        => '',
+        'lhs'       => '',
+        'meta'      => '',
+        'msg'       => '',
+        'nav'       => '',
+        'navcolor'  => 'inverse',
+        'navtype'   => 'static',
+        'ntitle'    => 'Bootstrap',
+        'ptitle'    => '',
+        'self'      => $_SERVER['PHP_SELF'],
     ],
     'ses' => [
-        'navcolor' => 'inverse',
-        'navtype' => 'static',
+        'navcolor'  => 'inverse',
+        'navtype'   => 'static',
     ],
     'nav' => [
         'non' => [
@@ -43,10 +43,11 @@ echo new page([
             'Contact' => ['fa fa-envelope fa-fw', '?o=pages&amp;m=contact'],
         ],
     ],
+    'email' => 'markc@renta.net'
 ]);
 
 // lib/php/page.php
-class page
+class Page
 {
     public function __construct($gbl)
     {
@@ -130,7 +131,6 @@ class page
             $safe_ary[$k] = isset($_REQUEST[$k])
                 ? htmlentities(trim($_REQUEST[$k]), ENT_QUOTES, 'UTF-8') : $v;
         }
-
         return $safe_ary;
     }
 
@@ -166,10 +166,6 @@ body { padding-top: 71px; }
     <link href="lib/img/favicon.ico" rel="icon">
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
-<!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
     <style>
 body {
   min-height: 2000px;
@@ -224,7 +220,7 @@ footer {
 }
 
 // lib/php/pages.php
-class pages
+class Pages
 {
     public function __construct(&$gbl)
     {
@@ -329,7 +325,7 @@ with nginx 1.7.6, php5-fpm 5.6.2, mariadb 5.5.39 and sqlite3 3.8.6.
       </div>
       <script>
 function mailform(form) {
-  location.href = "mailto:markc@renta.net"
+  location.href = "mailto:'.$this->gbl['email'].'"
     + "?subject=" + encodeURIComponent(form.subject.value)
     + "&body=" + encodeURIComponent(form.message.value);
   form.subject.value = "";
@@ -361,8 +357,8 @@ function mailform(form) {
     public function navbar()
     {
         switch ($this->gbl['in']['i']) {
-            case '1': $_SESSION['navtype'] = $this->navtype = 'static';  break;
-            case '2': $_SESSION['navtype'] = $this->navtype = 'fixed';   break;
+            case '1': $_SESSION['navtype']  = $this->navtype  = 'static';  break;
+            case '2': $_SESSION['navtype']  = $this->navtype  = 'fixed';   break;
             case '3': $_SESSION['navcolor'] = $this->navcolor = 'default'; break;
             case '4': $_SESSION['navcolor'] = $this->navcolor = 'inverse'; break;
         }

@@ -9,78 +9,78 @@ const DS = DIRECTORY_SEPARATOR;
 session_start();
 
 echo new page([
-  'in' => [
-    'o' => 'pages', // Object
-    'm' => 'read',  // Method
-    'i' => 0,       // Id
-    'g' => 0,       // Group
-  ],
-  'out' => [
-    'body' => '',
-    'css' => '',
-    'dbg' => '',
-    'dtitle' => 'Login',
-    'foot' => '<p>Copyright (C) 2014 Mark Constable (AGPL-3.0)</p>',
-    'head' => '',
-    'js' => '',
-    'lhs' => '',
-    'meta' => '',
-    'msg' => '',
-    'nav' => '',
-    'navcolor' => 'inverse',
-    'navtype' => 'static',
-    'ntitle' => 'Login',
-    'ptitle' => '',
-    'self' => $_SERVER['PHP_SELF'],
-  ],
-  'ses' => [
-    'navcolor' => 'inverse',
-    'navtype' => 'static',
-    'cnt' => '0',
-  ],
-  'nav' => [
-    'non' => [
-      'About' => ['fa fa-info-circle fa-fw', '?o=pages&m=about'],
-      'Sign in' => ['fa fa-sign-in fa-fw', '?o=auth&m=signin'],
+    'in' => [
+        'o'         => 'pages', // Object
+        'm'         => 'read',  // Method
+        'i'         => 0,       // Id
+        'g'         => 0,       // Group
     ],
-    'usr' => [
-      'About' => ['fa fa-info-circle fa-fw', '?o=pages&m=about'],
-      'Sign out' => ['fa fa-sign-out fa-fw', '?o=auth&m=signout'],
+    'out' => [
+        'body'      => '',
+        'css'       => '',
+        'dbg'       => '',
+        'dtitle'    => 'Login',
+        'foot'      => '<p>Copyright (C) 2014 Mark Constable (AGPL-3.0)</p>',
+        'head'      => '',
+        'js'        => '',
+        'lhs'       => '',
+        'meta'      => '',
+        'msg'       => '',
+        'nav'       => '',
+        'navcolor'  => 'inverse',
+        'navtype'   => 'static',
+        'ntitle'    => 'Login',
+        'ptitle'    => '',
+        'self'      => $_SERVER['PHP_SELF'],
     ],
-    'adm' => [
-      'About' => ['fa fa-info-circle fa-fw', '?o=pages&m=about'],
-      'Dashboard' => ['fa fa-gear fa-fw', '?o=admin&m=dash'], // TODO
-      'Sign out' => ['fa fa-sign-out fa-fw', '?o=auth&m=signout'],
+    'ses' => [
+        'navcolor'  => 'inverse',
+        'navtype'   => 'static',
+        'cnt'       => '0',
     ],
-  ],
-  'db' => [
-    'host' => '127.0.0.1',
-    'name' => 'spex', // (S)imple (P)hp (EX)amples
-    'pass' => 'changeme', //ROOT.DS.'lib'.DS.'php'.DS.'.htpw.php',
-    'path' => ROOT.DS.'lib'.DS.'sql'.DS.'.htsqlite.db',
-    'port' => '3306',
-    'sock' => '/run/mysqld/mysqld.sock', // or just ''
-    'type' => 'mysql',
-    'user' => 'root',
-  ],
+    'nav' => [
+        'non'       => [
+        'About'     => ['fa fa-info-circle fa-fw', '?o=pages&m=about'],
+        'Sign in'   => ['fa fa-sign-in fa-fw', '?o=auth&m=signin'],
+        ],
+        'usr'       => [
+        'About'     => ['fa fa-info-circle fa-fw', '?o=pages&m=about'],
+        'Sign out'  => ['fa fa-sign-out fa-fw', '?o=auth&m=signout'],
+        ],
+        'adm' => [
+        'About'     => ['fa fa-info-circle fa-fw', '?o=pages&m=about'],
+        'Dashboard' => ['fa fa-gear fa-fw', '?o=admin&m=dash'], // TODO
+        'Sign out'  => ['fa fa-sign-out fa-fw', '?o=auth&m=signout'],
+        ],
+    ],
+    'db' => [
+        'host'      => '127.0.0.1',
+        'name'      => 'spex', // (S)imple (P)hp (EX)amples
+        'pass'      => 'changeme', //ROOT.DS.'lib'.DS.'php'.DS.'.htpw.php',
+        'path'      => ROOT.DS.'lib'.DS.'sql'.DS.'.htsqlite.db',
+        'port'      => '3306',
+        'sock'      => '/run/mysqld/mysqld.sock', // or just ''
+        'type'      => 'mysql',
+        'user'      => 'root',
+    ],
 ]);
 
 // lib/php/db.php
-class db extends \PDO
+class Db extends \PDO
 {
     public function __construct($dbgbl)
     {
         extract($dbgbl);
         $dsn = $type === 'mysql'
-      ? 'mysql:'.($sock ? 'unix_socket='.$sock : 'host='.$host.';port='.$port).';dbname='.$name
-      : 'sqlite:'.$path;
+            ? 'mysql:'.($sock ? 'unix_socket='.$sock : 'host='.$host.';port='.$port).';dbname='.$name
+            : 'sqlite:'.$path;
         $pass = file_exists($pass) ? include $pass : $pass;
         try {
             parent::__construct($dsn, $user, $pass, [
-        \PDO::ATTR_EMULATE_PREPARES => false,
-        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-        \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-      ]);
+                \PDO::ATTR_EMULATE_PREPARES => false,
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+            ]);
         } catch (\PDOException $e) {
             die(__FILE__.' '.__LINE__."\n".$e->getMessage());
         }
@@ -165,7 +165,7 @@ class db extends \PDO
 }
 
 // lib/php/auth.php
-class auth
+class Auth
 {
     public $buf = '';
     private $db = null;
@@ -176,10 +176,10 @@ class auth
     {
         $this->gbl = &$gbl;
         $gbl['in'] = page::esc(array_merge($gbl['in'], [
-      'uid' => '',
-      'webpw' => '',
-      'remember' => '',
-    ]));
+            'uid' => '',
+            'webpw' => '',
+            'remember' => '',
+        ]));
         $this->db = new db($gbl['db']);
     }
 
@@ -193,31 +193,25 @@ class auth
             if ($usr = db::read($this->db, $this->tbl, 'id,acl,uid,webpw,cookie', 'uid', $u, 'one')) {
                 if ($usr['acl']) {
                     //          if ($p === $usr['webpw']) { // for testing a clear text password
-          if (password_verify($p, $usr['webpw'])) {
-              $uniq = md5(uniqid());
-              if ($c) {
-                  db::update($this->db, $this->tbl, 'cookie', $uniq, 'uid', $u);
-                  page::cookie_put('remember', $uniq, 60 * 60 * 24);
-                  $tmp = $uniq;
-              } else {
-                  $tmp = '';
-              }
-              $_SESSION['usr'] = [$usr['id'], $usr['acl'], $u, $tmp];
-              page::msg($usr['uid'].' is now logged in', 'success');
-              if ($usr['acl'] == 1) {
-                  $_SESSION['adm'] = $usr['id'];
-              }
-              header('Location: '.$this->gbl['out']['self']);
-              exit();
-          } else {
-              page::msg('Incorrect password');
-          }
-                } else {
-                    page::msg('Account is disabled, contact your System Administrator');
-                }
-            } else {
-                page::msg('Username does not exist');
-            }
+                    if (password_verify($p, $usr['webpw'])) {
+                        $uniq = md5(uniqid());
+                        if ($c) {
+                            db::update($this->db, $this->tbl, 'cookie', $uniq, 'uid', $u);
+                            page::cookie_put('remember', $uniq, 60 * 60 * 24);
+                            $tmp = $uniq;
+                        } else {
+                            $tmp = '';
+                        }
+                        $_SESSION['usr'] = [$usr['id'], $usr['acl'], $u, $tmp];
+                        page::msg($usr['uid'].' is now logged in', 'success');
+                        if ($usr['acl'] == 1) {
+                            $_SESSION['adm'] = $usr['id'];
+                        }
+                        header('Location: '.$this->gbl['out']['self']);
+                        exit();
+                    } else page::msg('Incorrect password');
+                } else page::msg('Account is disabled, contact your System Administrator');
+            } else page::msg('Username does not exist');
         }
         $this->body = $this->signin_form($u);
     }
@@ -252,15 +246,9 @@ class auth
                         }
                         header('Location: '.$this->gbl['out']['self']);
                         exit();
-                    } else {
-                        page::msg('Account is disabled, contact your System Administrator');
-                    }
-                } else {
-                    page::msg('User does not exist');
-                }
-            } else {
-                page::msg('You must provide a valid email address');
-            }
+                    } else page::msg('Account is disabled, contact your System Administrator');
+                } else page::msg('User does not exist');
+            } else page::msg('You must provide a valid email address');
         }
         $this->body = $this->forgotpw_form($u);
     }
@@ -346,7 +334,7 @@ LoginURL: https://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?o=auth&m=signin
 }
 
 // lib/php/page.php
-class page
+class Page
 {
     public function __construct($gbl)
     {
@@ -369,8 +357,8 @@ class page
         }
 
         $nav = isset($_SESSION['usr'])
-      ? (isset($_SESSION['adm']) ? $gbl['nav']['adm'] : $gbl['nav']['usr'])
-      : $gbl['nav']['non'];
+            ? (isset($_SESSION['adm']) ? $gbl['nav']['adm'] : $gbl['nav']['usr'])
+            : $gbl['nav']['non'];
 
         $gbl['out']['nav'] = self::nav($nav);
         $gbl['out']['msg'] = self::msg();
@@ -384,8 +372,8 @@ class page
     public function __toString()
     {
         return isset($_SERVER['HTTP_X_REQUESTED_WITH'])
-      ? json_encode($this->gbl['out'])
-      : self::layout($this->gbl['out']);
+            ? json_encode($this->gbl['out'])
+            : self::layout($this->gbl['out']);
     }
 
     public static function nav($ary, $type = 'navbar-nav')
@@ -433,7 +421,7 @@ class page
         $safe_ary = [];
         foreach ($ary as $k => $v) {
             $safe_ary[$k] = isset($_REQUEST[$k])
-        ? htmlentities(trim($_REQUEST[$k]), ENT_QUOTES, 'UTF-8') : $v;
+                ? htmlentities(trim($_REQUEST[$k]), ENT_QUOTES, 'UTF-8') : $v;
         }
 
         return $safe_ary;
@@ -486,22 +474,11 @@ class page
                     if (preg_match('/[a-z]+/', $pw)) {
                         if ($pw === $pw2) {
                             return true;
-                        } else {
-                            self::msg('Passwords do not match, please try again');
-                        }
-                    } else {
-                        self::msg('Password must contains at least one lower case letter');
-                    }
-                } else {
-                    self::msg('Password must contains at least one captital letter');
-                }
-            } else {
-                self::msg('Password must contains at least one number');
-            }
-        } else {
-            self::msg('Passwords must be at least 10 characters');
-        }
-
+                        } else self::msg('Passwords do not match, please try again');
+                    } else self::msg('Password must contains at least one lower case letter');
+                } else self::msg('Password must contains at least one captital letter');
+            } else self::msg('Password must contains at least one number');
+        } else self::msg('Passwords must be at least 10 characters');
         return false;
     }
 
@@ -603,7 +580,7 @@ footer {
 }
 
 // lib/php/pages.php
-class pages
+class Pages
 {
     public function __construct(&$gbl)
     {
@@ -704,11 +681,11 @@ with nginx 1.7.6, php5-fpm 5.6.2, mariadb 5.5.39 and sqlite3 3.8.6.
     public function navbar()
     {
         switch ($this->gbl['in']['i']) {
-      case '1': $_SESSION['navtype'] = $this->navtype = 'static';  break;
-      case '2': $_SESSION['navtype'] = $this->navtype = 'fixed';   break;
-      case '3': $_SESSION['navcolor'] = $this->navcolor = 'default'; break;
-      case '4': $_SESSION['navcolor'] = $this->navcolor = 'inverse'; break;
-    }
+            case '1': $_SESSION['navtype']  = $this->navtype  = 'static';  break;
+            case '2': $_SESSION['navtype']  = $this->navtype  = 'fixed';   break;
+            case '3': $_SESSION['navcolor'] = $this->navcolor = 'default'; break;
+            case '4': $_SESSION['navcolor'] = $this->navcolor = 'inverse'; break;
+        }
         $this->about();
     }
 }
