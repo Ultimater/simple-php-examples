@@ -1,7 +1,7 @@
 <?php
 
 /**
- * A simple, clean and secure PHP Login Script
+ * A simple, clean and secure PHP Login Script.
  *
  * SINGLE FILE FUNCTIONAL VERSION
  *
@@ -14,15 +14,15 @@
  * dependency injected, one shared database connection, PDO, prepared
  * statements, PSR-0/1/2 and documented in phpDocumentor style
  *
- * @package php-login
  * @author Panique <panique@web.de>
  * @author Mark Constable <markc@renta.net>
+ *
  * @link https://github.com/panique/php-login/
+ *
  * @license http://opensource.org/licenses/MIT MIT License
  */
-
 if (version_compare(PHP_VERSION, '5.5.0', '<')) {
-    require("../1-minimal/libraries/password_compatibility_library.php");
+    require '../1-minimal/libraries/password_compatibility_library.php';
 }
 
 session_start();
@@ -31,19 +31,19 @@ session_start();
 //error_log('SESSION='.var_export($_SESSION, true));
 
 echo page(init(cfg(array(
-    'title'     => 'Simple PHP Login',
-    'admin'     => 'admin',
-    'email'     => 'admin@localhost.lan',
-    'passwd'    => 'changeme',
-    'db'        => null,
-    'dbconf'    => array(
-        'host'  => 'localhost',
-        'name'  => 'users',
-        'pass'  => 'changeme',
-        'path'  => 'users.db',
-        'port'  => '3306',
-        'type'  => 'sqlite',
-        'user'  => 'root')))));
+    'title' => 'Simple PHP Login',
+    'admin' => 'admin',
+    'email' => 'admin@localhost.lan',
+    'passwd' => 'changeme',
+    'db' => null,
+    'dbconf' => array(
+        'host' => 'localhost',
+        'name' => 'users',
+        'pass' => 'changeme',
+        'path' => 'users.db',
+        'port' => '3306',
+        'type' => 'sqlite',
+        'user' => 'root', ), ))));
 
 // public callable functions
 
@@ -56,13 +56,13 @@ function home()
     </p>
     <p>
       <a class="btn" href="?a=logout">Logout</a>
-    </p>': login_form();
+    </p>' : login_form();
 }
 
 function logout()
 {
     $_SESSION = array();
-    $_SESSION['msg'] = "You are now logged out";
+    $_SESSION['msg'] = 'You are now logged out';
     header('Location: '.$_SERVER['PHP_SELF']);
     exit();
 }
@@ -79,12 +79,21 @@ function login()
                         create_session($user);
                         header('Location: '.$_SERVER['PHP_SELF']);
                         exit();
-                    } else $msg = 'Passwords do not match';
-                } else $msg = 'Username does not exist';
-            } else $msg = 'Password must be at least 6 characters';
-        } else $msg = 'Username must be at least 2 characters';
+                    } else {
+                        $msg = 'Passwords do not match';
+                    }
+                } else {
+                    $msg = 'Username does not exist';
+                }
+            } else {
+                $msg = 'Password must be at least 6 characters';
+            }
+        } else {
+            $msg = 'Username must be at least 2 characters';
+        }
         $_SESSION['msg'] = $msg;
     }
+
     return login_form();
 }
 
@@ -107,18 +116,39 @@ function register()
                                                 $_SESSION['msg'] = 'You are now registered so please login';
                                                 header('Location: '.$_SERVER['PHP_SELF']);
                                                 exit();
-                                            } else $msg = 'You must provide a valid email address';
-                                        } else $msg = 'Email must be less than 64 characters';
-                                    } else $msg = 'Email cannot be empty';
-                                } else $msg = 'Username already exists';
-                            } else $msg = 'Username must be only a-z, A-Z, 0-9';
-                        } else $msg = 'Username must be between 2 and 64 characters';
-                    } else $msg = 'Password must be at least 6 characters';
-                } else $msg = 'Passwords do not match';
-            } else $msg = 'Empty Password';
-        } else $msg = 'Empty Username';
+                                            } else {
+                                                $msg = 'You must provide a valid email address';
+                                            }
+                                        } else {
+                                            $msg = 'Email must be less than 64 characters';
+                                        }
+                                    } else {
+                                        $msg = 'Email cannot be empty';
+                                    }
+                                } else {
+                                    $msg = 'Username already exists';
+                                }
+                            } else {
+                                $msg = 'Username must be only a-z, A-Z, 0-9';
+                            }
+                        } else {
+                            $msg = 'Username must be between 2 and 64 characters';
+                        }
+                    } else {
+                        $msg = 'Password must be at least 6 characters';
+                    }
+                } else {
+                    $msg = 'Passwords do not match';
+                }
+            } else {
+                $msg = 'Empty Password';
+            }
+        } else {
+            $msg = 'Empty Username';
+        }
         $_SESSION['msg'] = $msg;
     }
+
     return register_form();
 }
 
@@ -159,21 +189,31 @@ function install()
 
 // private support functions
 
-function cfg($k = NULL, $v = NULL)
+function cfg($k = null, $v = null)
 {
     static $stash = array();
-    if (empty($k)) return $stash;
-    if (is_array($k)) return $stash = array_merge($stash, $k);
-    if ($v) $stash[$k] = $v;
-    return isset($stash[$k]) ? $stash[$k] : NULL;
+    if (empty($k)) {
+        return $stash;
+    }
+    if (is_array($k)) {
+        return $stash = array_merge($stash, $k);
+    }
+    if ($v) {
+        $stash[$k] = $v;
+    }
+
+    return isset($stash[$k]) ? $stash[$k] : null;
 }
 
 function init($cfg)
 {
-    if (!empty($_POST)) cfg('db', db_init($cfg['dbconf']));
+    if (!empty($_POST)) {
+        cfg('db', db_init($cfg['dbconf']));
+    }
     $action = isset($_REQUEST['a'])
         ? strtolower(str_replace(' ', '_', trim($_REQUEST['a'])))
         : 'home';
+
     return in_array($action, array('home', 'login', 'logout', 'register', 'install'))
         ? $action()
         : '<b>Error: action does not exist</b>';
@@ -212,6 +252,7 @@ a { text-decoration: none; }
 function login_form()
 {
     $user_name = isset($_POST['user_name']) ? $_POST['user_name'] : '';
+
     return '
     <form method="post" action="?a=login" name="loginform">
       <label for="login_input_username">Username</label>
@@ -226,13 +267,13 @@ function login_form()
       <br>
       <a class="btn" href="?a=register">Register New Account</a>
     </form>';
-
 }
 
 function register_form()
 {
     $user_name = isset($_POST['user_name']) ? $_POST['user_name'] : '';
     $user_email = isset($_POST['user_email']) ? $_POST['user_email'] : '';
+
     return '
     <form method="post" action="?a=register" name="registerform">
       <p>All fields are required. Username must be only letters and numbers from<br>
@@ -257,7 +298,6 @@ function register_form()
       <br>
       <a class="btn" href="?a=login">&laquo; Back to Login Page</a>
     </form>';
-
 }
 
 // CRUD/database functions
@@ -271,6 +311,7 @@ function db_init($dbconf)
     try {
         $db = new PDO($dsn, $user, $pass);
         $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
         return $db;
     } catch (PDOException $e) {
         die('DB Connection failed: '.$e->getMessage());
@@ -279,14 +320,16 @@ function db_init($dbconf)
 
 function create_user()
 {
-    $q = cfg('db')->prepare("
+    $q = cfg('db')->prepare('
     INSERT INTO users (user_name, user_password_hash, user_email)
-     VALUES(:user_name, :user_password_hash, :user_email)");
+     VALUES(:user_name, :user_password_hash, :user_email)');
 
-    $q->bindValue(":user_name", $_POST['user_name']);
-    $q->bindValue(":user_password_hash", password_hash($_POST['user_password_new'], PASSWORD_DEFAULT));
-    $q->bindValue(":user_email", $_POST['user_email']);
-    if (!$q->execute()) throw new Exception(die($q->errorInfo()));
+    $q->bindValue(':user_name', $_POST['user_name']);
+    $q->bindValue(':user_password_hash', password_hash($_POST['user_password_new'], PASSWORD_DEFAULT));
+    $q->bindValue(':user_email', $_POST['user_email']);
+    if (!$q->execute()) {
+        throw new Exception(die($q->errorInfo()));
+    }
     $q->closeCursor();
 }
 
@@ -298,8 +341,12 @@ function read_user($user)
   WHERE user_name = '$user'")->fetch(PDO::FETCH_ASSOC);
 }
 
-function update_user() {}
-function delete_user() {}
+function update_user()
+{
+}
+function delete_user()
+{
+}
 
 function create_session($user)
 {

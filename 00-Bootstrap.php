@@ -1,4 +1,5 @@
 <?php
+
 // 00-Bootstrap.php 20140818 (C) 2014 Mark Constable <markc@renta.net> (AGPL-3.0)
 // https://github.com/markc/simple-php-examples/blob/master/lib/md/00-Bootstrap.md
 
@@ -9,32 +10,32 @@ session_start();
 
 echo new page([
     'in' => [
-        'o'         => 'pages', // Object
-        'm'         => 'read',    // Method
-        'i'         => 0,             // Id
-        'g'         => 0,             // Group
+        'o' => 'pages', // Object
+        'm' => 'read',    // Method
+        'i' => 0,             // Id
+        'g' => 0,             // Group
     ],
     'out' => [
-        'body'      => '',
-        'css'       => '',
-        'dbg'       => '',
-        'dtitle'    => 'Bootstrap',
-        'foot'      => '<p>Copyright (C) 2014 Mark Constable (AGPL-3.0)</p>',
-        'head'      => '',
-        'js'        => '',
-        'lhs'       => '',
-        'meta'      => '',
-        'msg'       => '',
-        'nav'       => '',
-        'navcolor'  => 'inverse',
-        'navtype'   => 'static',
-        'ntitle'    => 'Bootstrap',
-        'ptitle'    => '',
-        'self'      => $_SERVER['PHP_SELF'],
+        'body' => '',
+        'css' => '',
+        'dbg' => '',
+        'dtitle' => 'Bootstrap',
+        'foot' => '<p>Copyright (C) 2014 Mark Constable (AGPL-3.0)</p>',
+        'head' => '',
+        'js' => '',
+        'lhs' => '',
+        'meta' => '',
+        'msg' => '',
+        'nav' => '',
+        'navcolor' => 'inverse',
+        'navtype' => 'static',
+        'ntitle' => 'Bootstrap',
+        'ptitle' => '',
+        'self' => $_SERVER['PHP_SELF'],
     ],
     'ses' => [
-        'navcolor'  => 'inverse',
-        'navtype'   => 'static',
+        'navcolor' => 'inverse',
+        'navtype' => 'static',
     ],
     'nav' => [
         'non' => [
@@ -45,8 +46,8 @@ echo new page([
 ]);
 
 // lib/php/page.php
-class page {
-
+class page
+{
     public function __construct($gbl)
     {
         $this->gbl = &$gbl;
@@ -57,10 +58,15 @@ class page {
             $o = new $gbl['in']['o']($gbl);
             if (method_exists($o, $gbl['in']['m'])) {
                 $o->{$gbl['in']['m']}();
-                foreach($gbl['out'] as $k=>$v)
+                foreach ($gbl['out'] as $k => $v) {
                     $gbl['out'][$k] = isset($o->$k) ? $o->$k : $v;
-            } else self::msg('Error: method does not exist');
-        } else self::msg('Error: object does not exist');
+                }
+            } else {
+                self::msg('Error: method does not exist');
+            }
+        } else {
+            self::msg('Error: object does not exist');
+        }
 
         $gbl['out']['nav'] = self::nav($gbl['nav']['non']);
         $gbl['out']['msg'] = self::msg();
@@ -68,7 +74,7 @@ class page {
 
     public function __destruct()
     {
-        error_log(__FILE__.' ('.round((microtime(true)-$_SERVER['REQUEST_TIME_FLOAT']), 4).' secs)');
+        error_log(__FILE__.' ('.round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']), 4).' secs)');
     }
 
     public function __toString()
@@ -78,28 +84,32 @@ class page {
             : self::layout($this->gbl['out']);
     }
 
-    public static function nav($ary, $type='navbar-nav')
+    public static function nav($ary, $type = 'navbar-nav')
     {
         $buf = '';
-        foreach($ary as $k => $v) {
+        foreach ($ary as $k => $v) {
             $s = $v[1] === '?'.$_SERVER['QUERY_STRING'] ? ' class="active"' : '';
             $i = $v[0] ? '<i class="'.$v[0].'"></i>&nbsp;' : '';
             $buf .= '
             <li'.$s.'><a href="'.$v[1].'">'.$i.$k.'</a></li>';
         }
+
         return '
           <ul class="nav '.$type.'">'.$buf.'
           </ul>';
     }
 
-    public static function msg($msg='', $lvl='danger')
+    public static function msg($msg = '', $lvl = 'danger')
     {
         if ($msg) {
             $_SESSION['msg'] = $msg;
             $_SESSION['lvl'] = $lvl;
-        } else if (isset($_SESSION['msg']) and $_SESSION['msg']) {
-            $msg = $_SESSION['msg']; unset($_SESSION['msg']);
-            $lvl = $_SESSION['lvl']; unset($_SESSION['lvl']);
+        } elseif (isset($_SESSION['msg']) and $_SESSION['msg']) {
+            $msg = $_SESSION['msg'];
+            unset($_SESSION['msg']);
+            $lvl = $_SESSION['lvl'];
+            unset($_SESSION['lvl']);
+
             return '
       <div class="row">
         <div class="col-md-6 col-md-offset-3">
@@ -108,35 +118,43 @@ class page {
         </div>
         </div>
       </div>';
-        } else return '';
+        } else {
+            return '';
+        }
     }
 
     public static function esc($ary)
     {
         $safe_ary = [];
-        foreach($ary as $k=>$v)
+        foreach ($ary as $k => $v) {
             $safe_ary[$k] = isset($_REQUEST[$k])
                 ? htmlentities(trim($_REQUEST[$k]), ENT_QUOTES, 'UTF-8') : $v;
+        }
+
         return $safe_ary;
     }
 
     public static function ses($in_ary, &$out_ary)
     {
-        foreach($in_ary as $k=>$v)
-            if (isset($_SESSION[$k]))
+        foreach ($in_ary as $k => $v) {
+            if (isset($_SESSION[$k])) {
                 $out_ary[$k] = $_SESSION[$k];
-            else
+            } else {
                 $_SESSION[$k] = $v;
+            }
+        }
     }
 
     private static function layout($ary)
     {
         extract($ary);
 
-        if ($navtype == 'fixed') $css .= '
+        if ($navtype == 'fixed') {
+            $css .= '
     <style>
 body { padding-top: 71px; }
     </style>';
+        }
 
         return '<!DOCTYPE html>
 <html lang="en">
@@ -206,8 +224,8 @@ footer {
 }
 
 // lib/php/pages.php
-class pages {
-
+class pages
+{
     public function __construct(&$gbl)
     {
         $this->gbl = &$gbl;
@@ -342,9 +360,9 @@ function mailform(form) {
 
     public function navbar()
     {
-        switch($this->gbl['in']['i']) {
-            case '1': $_SESSION['navtype']  = $this->navtype  = 'static';  break;
-            case '2': $_SESSION['navtype']  = $this->navtype  = 'fixed';   break;
+        switch ($this->gbl['in']['i']) {
+            case '1': $_SESSION['navtype'] = $this->navtype = 'static';  break;
+            case '2': $_SESSION['navtype'] = $this->navtype = 'fixed';   break;
             case '3': $_SESSION['navcolor'] = $this->navcolor = 'default'; break;
             case '4': $_SESSION['navcolor'] = $this->navcolor = 'inverse'; break;
         }

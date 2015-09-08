@@ -1,4 +1,5 @@
 <?php
+
 // tit.php 20130524 (C) Mark Constable (AGPLv3)
 // https://github.com/markc/tit
 // Based on:
@@ -6,14 +7,14 @@
 // https://github.com/jwalanta/tit
 
   echo page(init(cfg(array(
-    'title'    => 'My Project',
-    'email'    => 'noreply@tit.lan',
-    'issue'    => array(),
-    'issues'   => array(),
+    'title' => 'My Project',
+    'email' => 'noreply@tit.lan',
+    'issue' => array(),
+    'issues' => array(),
     'comments' => array(),
-    'status'   => 0,
-    'mode'     => 'list',
-    'db'       => null,
+    'status' => 0,
+    'mode' => 'list',
+    'db' => null,
     'dbconf' => array(
       'host' => 'localhost',
       'name' => 'tit',
@@ -21,91 +22,91 @@
       'path' => 'tit.db',
       'port' => '3306',
       'type' => 'sqlite',
-      'user' => 'root'
+      'user' => 'root',
     ),
     'users' => array(
       'admin' => array(
         'username' => 'admin',
         'password' => md5('changeme'),
-        'email'    => 'admin@tit.lan',
-        'admin'    => true
+        'email' => 'admin@tit.lan',
+        'admin' => true,
       ),
       'markc' => array(
         'username' => 'user1',
         'password' => md5('changeme'),
-        'email'    => 'user1@tit.lan'
-      )
+        'email' => 'user1@tit.lan',
+      ),
     ),
     'notify' => array(
-      'issue_create'   => true,
-      'issue_edit'     => true,
-      'issue_delete'   => true,
-      'issue_status'   => true,
+      'issue_create' => true,
+      'issue_edit' => true,
+      'issue_delete' => true,
+      'issue_status' => true,
       'issue_priority' => true,
-      'comment_create' => true
+      'comment_create' => true,
     ),
     'priority_ary' => array(
       1 => 'High',
       2 => 'Medium',
-      3 => 'Low'
+      3 => 'Low',
     ),
     'statuses' => array(
       0 => 'Active',
-      1 => 'Resolved'
+      1 => 'Resolved',
     ),
   ))));
 
   function init($cfg)
   {
-    session_start();
+      session_start();
     //error_log('REQUEST='.var_export($_REQUEST, true));
     //error_log('SESSION='.var_export($_SESSION, true));
 
     if (isset($_GET['logout'])) {
-      logout();
+        logout();
     } elseif (isset($_POST['login'])) {
-      login();
+        login();
     } elseif (!isset($_SESSION['tit']['username'])) {
-      echo login_form();
-      exit;
+        echo login_form();
+        exit;
     }
 
-    cfg('db', db_init($cfg['dbconf']));
-    if (isset($_GET["install"])) {
-      install($cfg['dbconf']['type']);
-    }
-    get_issue();
+      cfg('db', db_init($cfg['dbconf']));
+      if (isset($_GET['install'])) {
+          install($cfg['dbconf']['type']);
+      }
+      get_issue();
 
-    if (isset($_POST["createissue"])) {
-      createissue();
-    } else if (isset($_GET["deleteissue"])) {
-      deleteissue();
-    } else if (isset($_POST["createcomment"])) {
-      createcomment();
-    } elseif (isset($_GET["deletecomment"])){
-      deletecomment();
-    } elseif (isset($_POST["watch"])) {
-      watch();
-    } elseif (isset($_POST["unwatch"])) {
-      unwatch();
-    } elseif (isset($_GET["changepriority"])) {
-      changepriority();
-    } elseif (isset($_GET["changestatus"])) {
-      changestatus();
-    }
+      if (isset($_POST['createissue'])) {
+          createissue();
+      } elseif (isset($_GET['deleteissue'])) {
+          deleteissue();
+      } elseif (isset($_POST['createcomment'])) {
+          createcomment();
+      } elseif (isset($_GET['deletecomment'])) {
+          deletecomment();
+      } elseif (isset($_POST['watch'])) {
+          watch();
+      } elseif (isset($_POST['unwatch'])) {
+          unwatch();
+      } elseif (isset($_GET['changepriority'])) {
+          changepriority();
+      } elseif (isset($_GET['changestatus'])) {
+          changestatus();
+      }
   }
 
   function install($type)
   {
-    $db = cfg('db');
-    $pri = $type == 'mysql' ? 'int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT' : 'INTEGER PRIMARY KEY';
+      $db = cfg('db');
+      $pri = $type == 'mysql' ? 'int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT' : 'INTEGER PRIMARY KEY';
 
     // uncomment below to reinstall tables while testing
     //$db->exec("DROP TABLE IF EXISTS comments;DROP TABLE IF EXISTS issues;");
 
-    $db->exec("
+    $db->exec('
  CREATE TABLE IF NOT EXISTS comments (
-        id ".$pri.",
+        id '.$pri.",
         issue_id INTEGER,
         user TEXT,
         description TEXT,
@@ -130,181 +131,191 @@
   // static
   function db_init($dbconf)
   {
-    extract($dbconf);
-    $dsn = $type === 'mysql'
+      extract($dbconf);
+      $dsn = $type === 'mysql'
       ? 'mysql:host='.$host.';port='.$port.';dbname='.$name
       : 'sqlite:'.$path;
-    try {
-      return new PDO($dsn, $user, $pass);
-    } catch (PDOException $e) {
-      die('DB Connection failed: '.$e->getMessage());
-    }
+      try {
+          return new PDO($dsn, $user, $pass);
+      } catch (PDOException $e) {
+          die('DB Connection failed: '.$e->getMessage());
+      }
   }
 
   function changestatus()
   {
-    $db = cfg('db');
-    $title = cfg('title');
-    $notify = cfg('notify');
-    $statuses = cfg('statuses');
-    $id = (int)$_GET['id'];
-    $status = (int)$_GET['status'];
-    $db->exec("
+      $db = cfg('db');
+      $title = cfg('title');
+      $notify = cfg('notify');
+      $statuses = cfg('statuses');
+      $id = (int) $_GET['id'];
+      $status = (int) $_GET['status'];
+      $db->exec("
  UPDATE issues SET status='$status'
   WHERE id = $id");
-    if ($notify['issue_status'])
-      notify($id, '['.$title.'] Issue Marked as '.$statuses[$status],
+      if ($notify['issue_status']) {
+          notify($id, '['.$title.'] Issue Marked as '.$statuses[$status],
         'Issue marked as '.$statuses[$status].' by '.$_SESSION['tit']['username']."\r\n".'Title: '.get_col($id, 'issues', 'title')."\r\n".'URL: http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?id='.$id);
-    header('Location: '.$_SERVER['PHP_SELF'].'?id='.$id);
+      }
+      header('Location: '.$_SERVER['PHP_SELF'].'?id='.$id);
   }
 
   function changepriority()
   {
-    $db = cfg('db');
-    $title = cfg('title');
-    $notify = cfg('notify');
-    $id = (int)$_GET['id'];
-    $priority =(int)$_GET['priority'];
-    if ($priority >= 1 and $priority <= 3)
-      $db->exec("
+      $db = cfg('db');
+      $title = cfg('title');
+      $notify = cfg('notify');
+      $id = (int) $_GET['id'];
+      $priority = (int) $_GET['priority'];
+      if ($priority >= 1 and $priority <= 3) {
+          $db->exec("
  UPDATE issues SET priority='$priority'
   WHERE id = $id");
-    if ($notify['issue_priority'])
-      notify($id, '['.$title.'] Issue Priority Changed',
+      }
+      if ($notify['issue_priority']) {
+          notify($id, '['.$title.'] Issue Priority Changed',
         'Issue Priority changed by '.$_SESSION['tit']['username']."\r\n".'Title: '.get_col($id, 'issues', 'title')."\r\n".'URL: http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?id='.$id);
-    header('Location: '.$_SERVER['PHP_SELF'].'?id='.$id);
+      }
+      header('Location: '.$_SERVER['PHP_SELF'].'?id='.$id);
   }
 
   function unwatch()
   {
-    $id = (int)$_POST['id'];
-    setWatch($id, false);
-    header('Location: '.$_SERVER['PHP_SELF'].'?id='.$id);
+      $id = (int) $_POST['id'];
+      setWatch($id, false);
+      header('Location: '.$_SERVER['PHP_SELF'].'?id='.$id);
   }
 
   function watch()
   {
-    $id = (int)$_POST['id'];
-    setWatch($id, true);
-    header('Location: '.$_SERVER['PHP_SELF'].'?id='.$id);
+      $id = (int) $_POST['id'];
+      setWatch($id, true);
+      header('Location: '.$_SERVER['PHP_SELF'].'?id='.$id);
   }
 
   function deletecomment()
   {
-    $db = cfg('db');
-    $id = (int)$_GET['id'];
-    $cid = (int)$_GET['cid'];
-    if ((isset($_SESSION['tit']['admin']) and $_SESSION['tit']['admin']) || $_SESSION['tit']['username'] == get_col($cid, 'comments', 'user'))
-      $db->exec("
+      $db = cfg('db');
+      $id = (int) $_GET['id'];
+      $cid = (int) $_GET['cid'];
+      if ((isset($_SESSION['tit']['admin']) and $_SESSION['tit']['admin']) || $_SESSION['tit']['username'] == get_col($cid, 'comments', 'user')) {
+          $db->exec("
  DELETE FROM comments
   WHERE id = $cid");
-    header('Location: '.$_SERVER['PHP_SELF'].'?id='.$id);
+      }
+      header('Location: '.$_SERVER['PHP_SELF'].'?id='.$id);
   }
 
   function createcomment()
   {
-    $db = cfg('db');
-    $title = cfg('title');
-    $notify = cfg('notify');
-    $id = (int)$_GET['id'];
-    $issue_id = (int)$_POST['issue_id'];
-    $description = pdo_escape_string($_POST['description']);
-    $user = $_SESSION['tit']['username'];
-    $now = date("Y-m-d H:i:s");
-    if (trim($description) != '') {
-      $query = "
+      $db = cfg('db');
+      $title = cfg('title');
+      $notify = cfg('notify');
+      $id = (int) $_GET['id'];
+      $issue_id = (int) $_POST['issue_id'];
+      $description = pdo_escape_string($_POST['description']);
+      $user = $_SESSION['tit']['username'];
+      $now = date('Y-m-d H:i:s');
+      if (trim($description) != '') {
+          $query = "
  INSERT INTO comments (issue_id, description, user, entrytime)
  VALUES ('$issue_id','$description','$user','$now')";
-      $db->exec($query);
-    }
-    if ($notify['comment_create'])
-      notify($id, '['.$title.'] New Comment Posted',
+          $db->exec($query);
+      }
+      if ($notify['comment_create']) {
+          notify($id, '['.$title.'] New Comment Posted',
         'New comment posted by '.$user."\r\n".'Title: '.get_col($id, 'issues', 'title')."\r\n".'URL: http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?id='.$issue_id);
-    header('Location: '.$_SERVER['PHP_SELF'].'?id='.$issue_id);
+      }
+      header('Location: '.$_SERVER['PHP_SELF'].'?id='.$issue_id);
   }
 
   function deleteissue()
   {
-    $db = cfg('db');
-    $title = cfg('title');
-    $notify = cfg('notify');
-    $id = (int)$_GET['id'];
-    $title = get_col($id, 'issues', 'title');
-    if ((isset($_SESSION['tit']['admin']) and $_SESSION['tit']['admin']) || $_SESSION['tit']['username'] == get_col($id, 'issues', 'user')) {
-      $db->exec("
+      $db = cfg('db');
+      $title = cfg('title');
+      $notify = cfg('notify');
+      $id = (int) $_GET['id'];
+      $title = get_col($id, 'issues', 'title');
+      if ((isset($_SESSION['tit']['admin']) and $_SESSION['tit']['admin']) || $_SESSION['tit']['username'] == get_col($id, 'issues', 'user')) {
+          $db->exec("
  DELETE FROM issues
   WHERE id = $id");
-      $db->exec("
+          $db->exec("
  DELETE FROM comments
   WHERE issue_id = $id");
-      if ($notify['issue_delete']) {
-        notify($id, '['.$title.'] Issue Deleted',
+          if ($notify['issue_delete']) {
+              notify($id, '['.$title.'] Issue Deleted',
           'Issue deleted by '.$_SESSION['tit']['username']."\r\n".'Title:'.$title);
+          }
       }
-    }
-    header('Location: '.$_SERVER['PHP_SELF']);
+      header('Location: '.$_SERVER['PHP_SELF']);
   }
 
   function createissue()
   {
-    $db = cfg('db');
-    $title = cfg('title');
-    $users = cfg('users');
-    $notify = cfg('notify');
-    $id = (int) $_POST['id'];
-    $title = pdo_escape_string($_POST['title']);
-    $description = pdo_escape_string($_POST['description']);
-    $priority = pdo_escape_string($_POST['priority']);
-    $user = pdo_escape_string($_SESSION['tit']['username']);
-    $now = date("Y-m-d H:i:s");
-    $emails = array();
-    for ($i = 0; $i < count($users); $i++) {
-      if ($users[$i]['email'] != '') $emails[] = $users[$i]['email'];
-    }
-    $notify_emails = implode(',', $emails);
-    if ($id == '')
-      $query = "
+      $db = cfg('db');
+      $title = cfg('title');
+      $users = cfg('users');
+      $notify = cfg('notify');
+      $id = (int) $_POST['id'];
+      $title = pdo_escape_string($_POST['title']);
+      $description = pdo_escape_string($_POST['description']);
+      $priority = pdo_escape_string($_POST['priority']);
+      $user = pdo_escape_string($_SESSION['tit']['username']);
+      $now = date('Y-m-d H:i:s');
+      $emails = array();
+      for ($i = 0; $i < count($users); ++$i) {
+          if ($users[$i]['email'] != '') {
+              $emails[] = $users[$i]['email'];
+          }
+      }
+      $notify_emails = implode(',', $emails);
+      if ($id == '') {
+          $query = "
  INSERT INTO issues (title, description, user, priority, notify_emails, entrytime)
  VALUES ('$title', '$description', '$user', '$priority', '$notify_emails', '$now')";
-    else
-      $query = "
+      } else {
+          $query = "
  UPDATE issues SET title='$title', description='$description'
   WHERE id = $id";
-    if (trim($title) != '') {
-      $db->exec($query);
-      if ($id == '') {
-        $id = $db->lastInsertId();
-        if ($notify['issue_create'])
-          notify($id, '['.$title.'] New Issue Created',
-            'New Issue Created by '.$user."\r\n".'Title: '.$title."\r\n".'URL: http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?id='.$id);
-      } else {
-        if ($notify['issue_edit'])
-          notify($id, '['.$title.'] Issue Edited',
-            'Issue edited by '.$user."\r\n".'Title: '.$title."\r\n".'URL: http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?id='.$id);
       }
-    }
-    header('Location: '.$_SERVER['PHP_SELF']);
+      if (trim($title) != '') {
+          $db->exec($query);
+          if ($id == '') {
+              $id = $db->lastInsertId();
+              if ($notify['issue_create']) {
+                  notify($id, '['.$title.'] New Issue Created',
+            'New Issue Created by '.$user."\r\n".'Title: '.$title."\r\n".'URL: http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?id='.$id);
+              }
+          } else {
+              if ($notify['issue_edit']) {
+                  notify($id, '['.$title.'] Issue Edited',
+            'Issue edited by '.$user."\r\n".'Title: '.$title."\r\n".'URL: http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?id='.$id);
+              }
+          }
+      }
+      header('Location: '.$_SERVER['PHP_SELF']);
   }
 
   function get_issue()
   {
-    $db = cfg('db');
-    $issue = array();
-    $comments = array();
-    if (isset($_GET['id'])) {
-      $id = (int)$_GET['id'];
-      $issue = $db->query("
+      $db = cfg('db');
+      $issue = array();
+      $comments = array();
+      if (isset($_GET['id'])) {
+          $id = (int) $_GET['id'];
+          $issue = $db->query("
  SELECT id, title, description, user, status, priority, notify_emails, entrytime
    FROM issues
   WHERE id = $id")->fetchAll(PDO::FETCH_ASSOC);
-      $comments = $db->query("
+          $comments = $db->query("
  SELECT id, user, description, entrytime
    FROM comments WHERE issue_id = $id
   ORDER BY entrytime ASC")->fetchAll(PDO::FETCH_ASSOC);
-    }
-    if (count($issue) == 0) {
-      $status = isset($_GET['status']) ? (int)$_GET['status'] : 0;
-      $issues = $db->query("
+      }
+      if (count($issue) == 0) {
+          $status = isset($_GET['status']) ? (int) $_GET['status'] : 0;
+          $issues = $db->query('
  SELECT id, title, description, user, status, priority, notify_emails, entrytime, comment_user, comment_time
   FROM issues
   LEFT JOIN (
@@ -312,32 +323,34 @@
           FROM comments
          ORDER BY entrytime DESC
        ) AS c ON c.issue_id = issues.id
- WHERE status=".((int)$status > 0 ? $status : "0 or status is null")."
- GROUP BY id ORDER BY priority, entrytime DESC")->fetchAll(PDO::FETCH_ASSOC);
-      cfg('comments', $comments);
-      cfg('issues', $issues);
-      cfg('issue', $issue);
-      cfg('mode', 'list');
-    } else {
-      cfg('comments', $comments);
-      cfg('issues', array());
-      cfg('issue', $issue[0]);
-      cfg('mode', 'issue');
-    }
+ WHERE status='.((int) $status > 0 ? $status : '0 or status is null').'
+ GROUP BY id ORDER BY priority, entrytime DESC')->fetchAll(PDO::FETCH_ASSOC);
+          cfg('comments', $comments);
+          cfg('issues', $issues);
+          cfg('issue', $issue);
+          cfg('mode', 'list');
+      } else {
+          cfg('comments', $comments);
+          cfg('issues', array());
+          cfg('issue', $issue[0]);
+          cfg('mode', 'issue');
+      }
   }
 
   function login()
   {
-    if (check_credentials($_POST['u'], md5($_POST['p']))) {
-      $users = cfg('users');
-      $_SESSION['tit'] = $users[$_POST['u']];
-      header('Location: '.$_SERVER['PHP_SELF']);
-    } else header('Location: '.$_SERVER['PHP_SELF'].'?loginerror');
+      if (check_credentials($_POST['u'], md5($_POST['p']))) {
+          $users = cfg('users');
+          $_SESSION['tit'] = $users[$_POST['u']];
+          header('Location: '.$_SERVER['PHP_SELF']);
+      } else {
+          header('Location: '.$_SERVER['PHP_SELF'].'?loginerror');
+      }
   }
 
   function login_form()
   {
-    return '
+      return '
 <html>
   <head>
     <title>Tiny Issue Tracker</title>
@@ -361,70 +374,78 @@ label { display: block; }
 
   function logout()
   {
-    $_SESSION['tit'] = array();
-    header('Location: '.$_SERVER['PHP_SELF']);
+      $_SESSION['tit'] = array();
+      header('Location: '.$_SERVER['PHP_SELF']);
   }
 
   // original support functions
 
   function pdo_escape_string($str)
   {
-    $db = cfg('db');
-    $quoted = $db->quote($str);
-    return ($db->quote("") == "''") ? substr($quoted, 1, strlen($quoted) - 2) : $quoted;
+      $db = cfg('db');
+      $quoted = $db->quote($str);
+
+      return ($db->quote('') == "''") ? substr($quoted, 1, strlen($quoted) - 2) : $quoted;
   }
 
   function check_credentials($u, $p)
   {
-    $users = cfg('users');
-    return $users[$u]['password'] == $p ? true : false;
+      $users = cfg('users');
+
+      return $users[$u]['password'] == $p ? true : false;
   }
 
   function get_col($id, $table, $col)
   {
-    $db = cfg('db');
-    $result = $db->query("
+      $db = cfg('db');
+      $result = $db->query("
  SELECT $col FROM $table
   WHERE id='$id'")->fetchAll();
-    return $result[0][$col];
+
+      return $result[0][$col];
   }
 
   function notify($id, $subject, $body)
   {
-    $db = cfg('db');
-    $result = $db->query("
+      $db = cfg('db');
+      $result = $db->query("
  SELECT notify_emails
    FROM issues
   WHERE id='$id'")->fetchAll();
-    $to = isset($result[0]) ? $result[0]['notify_emails'] : '';
-    if ($to != '') {
-      $headers = 'From: '.cfg('email')."\r\n".'X-Mailer: PHP/'.phpversion();
-      mail($to, $subject, $body, $headers);
-    }
+      $to = isset($result[0]) ? $result[0]['notify_emails'] : '';
+      if ($to != '') {
+          $headers = 'From: '.cfg('email')."\r\n".'X-Mailer: PHP/'.phpversion();
+          mail($to, $subject, $body, $headers);
+      }
   }
 
   function watchFilterCallback($email)
   {
-    return $email != $_SESSION['tit']['email'];
+      return $email != $_SESSION['tit']['email'];
   }
 
   function setWatch($id, $addToWatch)
   {
-    $db = cfg('db');
-    if ($_SESSION['tit']['email'] == '') return;
-    $result = $db->query("
+      $db = cfg('db');
+      if ($_SESSION['tit']['email'] == '') {
+          return;
+      }
+      $result = $db->query("
  SELECT notify_emails
    FROM issues
   WHERE id = $id")->fetchAll();
-    $notify_emails = $result[0]['notify_emails'];
-    $emails = $notify_emails ? explode(',', $notify_emails) : array();
+      $notify_emails = $result[0]['notify_emails'];
+      $emails = $notify_emails ? explode(',', $notify_emails) : array();
 
-    if ($addToWatch) $emails[] = $_SESSION['tit']['email'];
-    else $emails = array_filter($emails, 'watchFilterCallback');
+      if ($addToWatch) {
+          $emails[] = $_SESSION['tit']['email'];
+      } else {
+          $emails = array_filter($emails, 'watchFilterCallback');
+      }
 
-    $emails = array_unique($emails);
-    $notify_emails = implode(',', $emails);
-    $db->exec("
+      $emails = array_unique($emails);
+      $notify_emails = implode(',', $emails);
+      $db->exec("
  UPDATE issues SET notify_emails='$notify_emails'
   WHERE id = $id");
   }
@@ -432,39 +453,50 @@ label { display: block; }
   // markc added cfg(), dropdown() and template functions
 
   // static
-  function cfg($k = NULL, $v = NULL)
+  function cfg($k = null, $v = null)
   {
-    static $stash = array();
-    if (empty($k)) return $stash;
-    if (is_array($k)) return $stash = array_merge($stash, $k);
-    if ($v) $stash[$k] = $v;
-    return isset($stash[$k]) ? $stash[$k] : NULL;
+      static $stash = array();
+      if (empty($k)) {
+          return $stash;
+      }
+      if (is_array($k)) {
+          return $stash = array_merge($stash, $k);
+      }
+      if ($v) {
+          $stash[$k] = $v;
+      }
+
+      return isset($stash[$k]) ? $stash[$k] : null;
   }
 
   // static
   function dropdown($ary, $name, $sel = '', $extra = '')
   {
-    $buf = '';
-    foreach($ary as $k=>$v) $buf .= '
+      $buf = '';
+      foreach ($ary as $k => $v) {
+          $buf .= '
               <option value="'.$k.'"'.($sel == "$k" ? ' selected' : '').'>'.$v.'</option>';
-    return '
+      }
+
+      return '
             <select name="'.$name.'"'.$extra.'>'.$buf.'
             </select>';
   }
 
   function menu()
   {
-    $issue = cfg('issue');
-    $statuses = cfg('statuses');
-    $status = isset($_GET['status']) ? $_GET['status'] : (isset($issue['status']) ? $issue['status'] : 0);
-    $buf = '';
-    foreach($statuses as $k => $v) {
-      $style = $status == $k ? ' style="font-weight:bold;"' : '';
-      $buf .= '
+      $issue = cfg('issue');
+      $statuses = cfg('statuses');
+      $status = isset($_GET['status']) ? $_GET['status'] : (isset($issue['status']) ? $issue['status'] : 0);
+      $buf = '';
+      foreach ($statuses as $k => $v) {
+          $style = $status == $k ? ' style="font-weight:bold;"' : '';
+          $buf .= '
       <a href="'.$_SERVER['PHP_SELF'].'?status='.$k.'" alt="'.$v.' Issues"'.$style.'>'.$v.' Issues</a> | ';
-    }
-    $u = (isset($_SESSION['tit']['username'])) ? $_SESSION['tit']['username'] : '';
-    return '
+      }
+      $u = (isset($_SESSION['tit']['username'])) ? $_SESSION['tit']['username'] : '';
+
+      return '
       <div id="menu">'.$buf.'
         <a href="'.$_SERVER['PHP_SELF'].'?logout" alt="Logout">Logout ['.$u.']</a>
       </div>';
@@ -472,23 +504,25 @@ label { display: block; }
 
   function ttitle()
   {
-    $issue = cfg('issue');
-    $onclick = "document.getElementById('create').className='';document.getElementById('title').focus();";
-    $create_edit = (!isset($issue['id']) or $issue['id'] == '') ? 'Create' : 'Edit';
-    $issue_id = isset($issue['id']) ? $issue['id'] : '';
-    return '
+      $issue = cfg('issue');
+      $onclick = "document.getElementById('create').className='';document.getElementById('title').focus();";
+      $create_edit = (!isset($issue['id']) or $issue['id'] == '') ? 'Create' : 'Edit';
+      $issue_id = isset($issue['id']) ? $issue['id'] : '';
+
+      return '
         <a href="#" onclick="'.$onclick.'">'.$create_edit.' Issue '.$issue_id.'</a>';
   }
 
   function editor()
   {
-    $issue = cfg('issue');
-    $editissue = isset($_GET['editissue']) ? '' : 'hide';
-    $issue_id = isset($issue['id']) ? $issue['id'] : '';
-    $issue_title = isset($issue['title']) ? htmlentities($issue['title']) : '';
-    $issue_desc = isset($issue['description']) ? htmlentities($issue['description']) : '';
-    $create_edit = (!isset($issue['id']) or $issue['id'] == '') ? 'Create' : 'Edit';
-    return '
+      $issue = cfg('issue');
+      $editissue = isset($_GET['editissue']) ? '' : 'hide';
+      $issue_id = isset($issue['id']) ? $issue['id'] : '';
+      $issue_title = isset($issue['title']) ? htmlentities($issue['title']) : '';
+      $issue_desc = isset($issue['description']) ? htmlentities($issue['description']) : '';
+      $create_edit = (!isset($issue['id']) or $issue['id'] == '') ? 'Create' : 'Edit';
+
+      return '
       <div id="create" class="'.$editissue.'">
         <a href="#" onclick="document.getElementById(\'create\').className=\'hide\';" style="float: right;">[Close]</a>
         <form method="POST">
@@ -508,10 +542,11 @@ label { display: block; }
 
   function mode_list()
   {
-    $issues = cfg('issues');
-    $statuses = cfg('statuses');
-    $hdr = isset($_GET['status']) ? $statuses[$_GET['status']].' ' : '';
-    return '
+      $issues = cfg('issues');
+      $statuses = cfg('statuses');
+      $hdr = isset($_GET['status']) ? $statuses[$_GET['status']].' ' : '';
+
+      return '
       <div id="list">
         <h2>'.$hdr.'Issues</h2>
         <table border=1 cellpadding=5 width="100%">
@@ -531,45 +566,48 @@ label { display: block; }
   // static
   function mode_list_issues($issues)
   {
-    $buf = '';
-    $count = 1;
-    foreach ($issues as $issue) {
-      $count++;
-      $buf .= '
+      $buf = '';
+      $count = 1;
+      foreach ($issues as $issue) {
+          ++$count;
+          $buf .= '
           <tr class="p'.$issue['priority'].'">
             <td>'.$issue['id'].'</a></td>
             <td><a href="?id='.$issue['id'].'">'.htmlentities($issue['title'], ENT_COMPAT, 'UTF-8').'</a></td>
             <td>'.$issue['user'].'</td>
             <td>'.$issue['entrytime'].'</td>
-            <td>'.((isset($_SESSION['tit']['email']) and $_SESSION['tit']['email']) and strpos($issue['notify_emails'], $_SESSION['tit']['email']) !== FALSE ? '&#10003;' : '').'</td>
-            <td>'.($issue['comment_user'] ? date('M j',strtotime($issue['comment_time'])).' ('.$issue['comment_user'].')' : '').'</td>
+            <td>'.((isset($_SESSION['tit']['email']) and $_SESSION['tit']['email']) and strpos($issue['notify_emails'], $_SESSION['tit']['email']) !== false ? '&#10003;' : '').'</td>
+            <td>'.($issue['comment_user'] ? date('M j', strtotime($issue['comment_time'])).' ('.$issue['comment_user'].')' : '').'</td>
             <td><a href="?editissue&id='.$issue['id'].'">Edit</a>';
 
-              if ((isset($_SESSION['tit']['admin']) and $_SESSION['tit']['admin'] == 1) or (isset($_SESSION['tit']['username']) and $_SESSION['tit']['username'] == $issue['user']))
-                $buf .= ' | <a href="?deleteissue&id='.$issue['id'].'" onclick="return confirm(\"Are you sure? All comments will be deleted too.\");">Delete</a>';
-              $buf .= '
+          if ((isset($_SESSION['tit']['admin']) and $_SESSION['tit']['admin'] == 1) or (isset($_SESSION['tit']['username']) and $_SESSION['tit']['username'] == $issue['user'])) {
+              $buf .= ' | <a href="?deleteissue&id='.$issue['id'].'" onclick="return confirm(\"Are you sure? All comments will be deleted too.\");">Delete</a>';
+          }
+          $buf .= '
             </td>
           </tr>';
-    }
-    return $buf;
+      }
+
+      return $buf;
   }
 
   function mode_issue()
   {
-    $issue = cfg('issue');
-    $statuses = cfg('statuses');
-    $comments = cfg('comments');
-    $priority_ary = cfg('priority_ary');
-    $priority_str = dropdown($priority_ary, 'priority', $issue['priority'],
+      $issue = cfg('issue');
+      $statuses = cfg('statuses');
+      $comments = cfg('comments');
+      $priority_ary = cfg('priority_ary');
+      $priority_str = dropdown($priority_ary, 'priority', $issue['priority'],
       ' onchange="location=\''.$_SERVER['PHP_SELF'].'?changepriority&id='.$issue['id'].'&priority=\'+this.value"');
-    $title = htmlentities($issue['title'], ENT_COMPAT, 'UTF-8');
-    $description = nl2br(preg_replace("/([a-z]+:\/\/\S+)/","<a href='$1'>$1</a>", htmlentities($issue['description'], ENT_COMPAT, 'UTF-8')));
-    $statuses_str = dropdown($statuses, 'status', $issue['status'],
+      $title = htmlentities($issue['title'], ENT_COMPAT, 'UTF-8');
+      $description = nl2br(preg_replace("/([a-z]+:\/\/\S+)/", "<a href='$1'>$1</a>", htmlentities($issue['description'], ENT_COMPAT, 'UTF-8')));
+      $statuses_str = dropdown($statuses, 'status', $issue['status'],
       ' onchange="location=\''.$_SERVER['PHP_SELF'].'?changestatus&id='.$issue['id'].'&status=\'+this.value"');
-    $watch = ($_SESSION['tit']['email'] && strpos($issue['notify_emails'], $_SESSION['tit']['email']) === false)
+      $watch = ($_SESSION['tit']['email'] && strpos($issue['notify_emails'], $_SESSION['tit']['email']) === false)
       ? '<input type="submit" name="watch" value="Watch">'
       : '<input type="submit" name="unwatch" value="Unwatch">';
-    return '
+
+      return '
       <div id="show">
         <div class="issue">
           <h2>'.$title.'</h2>
@@ -602,35 +640,43 @@ label { display: block; }
   // static
   function mode_issue_comments($issue, $comments)
   {
-    $buf = '';
-    if (count($comments) > 0) $buf .= '
+      $buf = '';
+      if (count($comments) > 0) {
+          $buf .= '
       <h3>Comments</h3>';
-    foreach($comments as $comment) {
-      $buf .=  "
-      <div class='comment'><p>".nl2br(preg_replace("/([a-z]+:\/\/\S+)/","<a href='$1'>$1</a>", htmlentities($comment['description'], ENT_COMPAT, 'UTF-8') ) ).'</p>';
-      $buf .= "
+      }
+      foreach ($comments as $comment) {
+          $buf .=  "
+      <div class='comment'><p>".nl2br(preg_replace("/([a-z]+:\/\/\S+)/", "<a href='$1'>$1</a>", htmlentities($comment['description'], ENT_COMPAT, 'UTF-8'))).'</p>';
+          $buf .= "
         <div class='comment-meta'><em>{$comment['user']}</em> on <em>{$comment['entrytime']}</em> ";
-      if ((isset($_SESSION['tit']['admin']) and $_SESSION['tit']['admin']) || $_SESSION['tit']['username']==$comment['user'])
-        $buf .= "
+          if ((isset($_SESSION['tit']['admin']) and $_SESSION['tit']['admin']) || $_SESSION['tit']['username'] == $comment['user']) {
+              $buf .= "
           <span class='right'><a href='{$_SERVER['PHP_SELF']}?deletecomment&id={$issue['id']}&cid={$comment['id']}' onclick='return confirm(\"Are you sure?\");'>Delete</a></span>";
-      $buf .= '
+          }
+          $buf .= '
         </div>
       </div>';
-    }
-    return $buf;
+      }
+
+      return $buf;
   }
 
   function list_mode()
   {
-    $mode = cfg('mode');
-    if ($mode == 'list') return mode_list();
-    elseif ($mode == 'issue') return mode_issue();
-    else return "WTF!";
+      $mode = cfg('mode');
+      if ($mode == 'list') {
+          return mode_list();
+      } elseif ($mode == 'issue') {
+          return mode_issue();
+      } else {
+          return 'WTF!';
+      }
   }
 
   function page()
   {
-    return '<!DOCTYPE html>
+      return '<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -672,4 +718,3 @@ tr:hover { background-color: #f0f0f0; }
 </html>
 ';
   }
-

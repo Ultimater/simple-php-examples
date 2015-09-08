@@ -1,4 +1,6 @@
-<?php error_log(__FILE);
+<?php
+
+error_log(__FILE);
 // pdocommon.php 20140604 (C) Mark Constable <markc@renta.net> (AGPL-3.0)
 
 session_start();
@@ -9,10 +11,11 @@ error_log('SESSION='.var_export($_SESSION, true));
 
 function page($ary)
 {
-error_log(__METHOD__);
+    error_log(__METHOD__);
 
-  extract($ary);
-  return <<< EOS
+    extract($ary);
+
+    return <<< EOS
 <!DOCTYPE html>
 <html lang="en">
   <head>
