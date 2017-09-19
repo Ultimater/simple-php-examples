@@ -1,3 +1,9 @@
+# HOW NOT TO CODE
+https://github.com/Ultimater/simple-php-examples/blob/master/lib/php/pdologin.php#L100
+
+---
+
+
 # Simple PHP Exmaples
 
 A simple set of PHP scripts that use [PDO] for backend database
